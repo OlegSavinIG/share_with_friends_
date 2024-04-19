@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.base.BaseController;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -14,22 +15,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-public class ItemController extends BaseController<Item, Long> {
+public class ItemController extends BaseController<ItemDto, Long> {
     private final ItemService itemService;
 
     @Override
-    protected Item createEntity(Item item) {
-        return itemService.addItem(item);
+    protected ItemDto createEntity(ItemDto item, Long userId) {
+        return itemService.addItem(item, userId);
     }
 
     @Override
-    protected Item getEntityById(Long id) {
+    protected ItemDto getEntityById(Long id) {
         return itemService.getItemById(id);
     }
 
     @Override
-    protected Item updateEntity(Item item) {
-        return itemService.updateItem(item);
+    protected ItemDto updateEntity(ItemDto item, Long userId) {
+        return itemService.updateItem(item, userId);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class ItemController extends BaseController<Item, Long> {
     }
 
     @Override
-    protected List<Item> getAllEntities() {
+    protected List<ItemDto> getAllEntities() {
         return itemService.getAllItems();
     }
 }

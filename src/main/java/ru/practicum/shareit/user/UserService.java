@@ -32,11 +32,7 @@ public class UserService {
         return userStorage.addUser(user);
     }
 
-//    private boolean isUserExist(long userId) {
-//        User userById = getUserById(userId);
-//        if (userById == null) {
-//            return false;
-//        }
-//        return true;
-//    }
+    public boolean isUserExist(long userId) {
+        return getUserById(userId) != null;
+    }
 }

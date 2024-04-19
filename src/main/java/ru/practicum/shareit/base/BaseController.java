@@ -1,16 +1,19 @@
 package ru.practicum.shareit.base;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
 public abstract class BaseController<T, ID> {
 
     @PostMapping
-    public ResponseEntity<T> create(@RequestBody T entity) {
-        T createdEntity = createEntity(entity);
+    public ResponseEntity<T> create(@Valid @RequestBody T entity,
+                                    @RequestHeader(name = "X-Sharer-User-Id", required = false) ID id) {
+        T createdEntity = createEntity(entity, id);
         return ResponseEntity.ok(createdEntity);
     }
 
@@ -21,8 +24,9 @@ public abstract class BaseController<T, ID> {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@RequestBody T entity) {
-        T updatedEntity = updateEntity(entity);
+    public ResponseEntity<T> update(@Validated(Update.class) @RequestBody T entity,
+                                    @RequestHeader(name = "X-Sharer-User-Id", required = false) ID id) {
+        T updatedEntity = updateEntity(entity, id);
         return updatedEntity != null ? ResponseEntity.ok(updatedEntity) : ResponseEntity.notFound().build();
     }
 
@@ -38,11 +42,11 @@ public abstract class BaseController<T, ID> {
         return ResponseEntity.ok(entities);
     }
 
-    protected abstract T createEntity(T entity);
+    protected abstract T createEntity(T entity, ID id);
 
     protected abstract T getEntityById(ID id);
 
-    protected abstract T updateEntity(T entity);
+    protected abstract T updateEntity(T entity, ID id);
 
     protected abstract boolean deleteEntity(ID id);
 

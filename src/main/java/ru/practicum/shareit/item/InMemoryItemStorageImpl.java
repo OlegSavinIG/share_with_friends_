@@ -5,12 +5,17 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 @Repository
 public class InMemoryItemStorageImpl implements ItemStorage {
     private Map<Long, Item> items = new HashMap<>();
     private long generatedId = 1;
+
     @Override
     public Item addItem(Item item) {
         item.setId(generatedId++);
@@ -24,9 +29,9 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Item updateItem(ItemDto item, long id) {
+    public Item updateItem(ItemDto item) {
         try {
-            Item existItem = items.get(id);
+            Item existItem = items.get(item.getId());
             Field[] declaredFields = item.getClass().getDeclaredFields();
             for (Field field : declaredFields) {
                 field.setAccessible(true);
@@ -52,7 +57,19 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<Item> getAllItems() {
-        return (List) items.values();
+    public List<Item> getAllItems(List<Long> itemIds) {
+        return items.values().stream()
+                .filter(item -> itemIds.contains(item.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Item> searchByNameOrDescription(String text, Long userId) {
+        String lowerCase = text.toLowerCase();
+        return items.values().stream()
+                .filter(item -> item.getAvailable())
+                .filter(item -> (item.getName().toLowerCase().contains(lowerCase)
+                        || item.getDescription().toLowerCase().contains(lowerCase)))
+                .collect(Collectors.toList());
     }
 }

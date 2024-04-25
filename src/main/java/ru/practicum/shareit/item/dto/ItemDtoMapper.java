@@ -10,14 +10,14 @@ public class ItemDtoMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .review(item.getReview())
-                .isAvailable(item.isAvailable())
+                .available(item.getAvailable())
                 .build();
     }
     public static Item itemDtoCreateItem(ItemDto itemDto, long userId) {
        return Item.builder()
                .name(itemDto.getName())
                .description(itemDto.getDescription())
-               .isAvailable(itemDto.isAvailable())
+               .available(itemDto.getAvailable())
                .ownerId(userId)
                .build();
     }

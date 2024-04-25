@@ -20,6 +20,6 @@ public class Item {
     private String name;
     private Long ownerId;
     private String description;
-    private boolean isAvailable;
+    private Boolean available;
     private String review;
 }

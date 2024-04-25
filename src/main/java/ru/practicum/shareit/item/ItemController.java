@@ -1,12 +1,13 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.base.BaseController;
+import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,6 +21,9 @@ public class ItemController extends BaseController<ItemDto, Long> {
 
     @Override
     protected ItemDto createEntity(ItemDto itemDto, Long userId) {
+        if (userId == null) {
+            throw new DataNotFoundException("Не передан id пользователя");
+        }
         return itemService.addItem(itemDto, userId);
     }
 
@@ -30,6 +34,9 @@ public class ItemController extends BaseController<ItemDto, Long> {
 
     @Override
     protected ItemDto updateEntity(ItemDto itemDto, Long id, Long userId) {
+        if (userId == null) {
+            throw new DataNotFoundException("Не передан id пользователя");
+        }
         return itemService.updateItem(itemDto, id, userId);
     }
 
@@ -39,7 +46,18 @@ public class ItemController extends BaseController<ItemDto, Long> {
     }
 
     @Override
-    protected List<ItemDto> getAllEntities() {
-        return itemService.getAllItems();
+    protected List<ItemDto> getAllEntities(Long userId) {
+        return itemService.getAllItems(userId);
+    }
+    @GetMapping("/search")
+    public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
+                                             @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        if (userId == null || text == null) {
+            throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
+        }
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
+        return itemService.searchByNameOrDescription(text, userId);
     }
 }

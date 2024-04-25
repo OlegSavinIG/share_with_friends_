@@ -19,7 +19,7 @@ public abstract class BaseController<T, ID> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<T> read(@PathVariable ID id) {
+    public ResponseEntity<T> getById(@PathVariable ID id) {
         T entity = getEntityById(id);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
@@ -39,8 +39,8 @@ public abstract class BaseController<T, ID> {
     }
 
     @GetMapping
-    public ResponseEntity<List<T>> list() {
-        List<T> entities = getAllEntities();
+    public ResponseEntity<List<T>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) ID userId) {
+        List<T> entities = getAllEntities(userId);
         return ResponseEntity.ok(entities);
     }
 
@@ -52,5 +52,5 @@ public abstract class BaseController<T, ID> {
 
     protected abstract boolean deleteEntity(ID id);
 
-    protected abstract List<T> getAllEntities();
+    protected abstract List<T> getAllEntities(ID userId);
 }

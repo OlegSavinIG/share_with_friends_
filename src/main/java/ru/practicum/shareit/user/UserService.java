@@ -31,14 +31,17 @@ public class UserService {
 
     public UserDto getUserById(Long userId) {
         return UserDtoMapper.userToUserDto(userStorage.getById(userId)
-                .orElseThrow(() -> new NotExistException("Несуществует пользователь с id %d", userId)));
+                .orElseThrow(() -> new NotExistException("Не существует пользователь с id %d", userId)));
     }
 
     public UserDto updateUser(UserDto userDto, long id) {
+        User user = UserDtoMapper.userDtoToUser(userDto);
+        if (userDto.getEmail() != null && userDto.getEmail().equals(getUserById(id).getEmail())) {
+            return UserDtoMapper.userToUserDto(userStorage.updateUser(user, id));
+        }
         if (allUserEmails.contains(userDto.getEmail())) {
             throw new ValidationException("Пользователь с таким email: %s уже существует", userDto.getEmail());
         }
-        User user = UserDtoMapper.userDtoToUser(userDto);
         if (userDto.getEmail() != null) {
            allUserEmails.remove(getUserById(id).getEmail());
            allUserEmails.add(userDto.getEmail());
@@ -59,7 +62,9 @@ public class UserService {
         return UserDtoMapper.userToUserDto(userStorage.addUser(user));
     }
 
-    public boolean isUserExist(long userId) {
-        return getUserById(userId) != null;
+    public void isUserExist(long userId) {
+        if (getUserById(userId) == null) {
+            throw new NotExistException("Пользователь с таким id %d не существует", userId);
+        }
     }
 }

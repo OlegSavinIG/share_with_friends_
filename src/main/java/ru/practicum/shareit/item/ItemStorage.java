@@ -11,9 +11,11 @@ public interface ItemStorage {
 
     Optional<Item> getItemById(Long id);
 
-    Item updateItem(ItemDto item, long id);
+    Item updateItem(ItemDto item);
 
     boolean deleteItemById(Long id);
 
-    List<Item> getAllItems();
+    List<Item> getAllItems(List<Long> itemIds);
+
+    List<Item> searchByNameOrDescription(String text, Long userId);
 }

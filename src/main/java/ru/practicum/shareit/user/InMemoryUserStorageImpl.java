@@ -1,9 +1,12 @@
 package ru.practicum.shareit.user;
 
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
+@Repository
 public class InMemoryUserStorageImpl implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
     private long generatedId = 1;
@@ -16,7 +19,7 @@ public class InMemoryUserStorageImpl implements UserStorage {
 
     @Override
     public boolean deleteById(Long userId) {
-       return users.remove(userId) != null;
+        return users.remove(userId) != null;
     }
 
     @Override
@@ -25,17 +28,37 @@ public class InMemoryUserStorageImpl implements UserStorage {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
-        User userOrDefault = users.getOrDefault(user.getId(), null);
-        if (userOrDefault == null) {
-            return Optional.empty();
+    public User updateUser(User user, long id) {
+        try {
+            User existUser = users.get(id);
+            Field[] declaredFields = user.getClass().getDeclaredFields();
+            for (Field declaredField : declaredFields) {
+                declaredField.setAccessible(true);
+                Object value = declaredField.get(user);
+                if (value != null) {
+                    Field existField = existUser.getClass().getDeclaredField(declaredField.getName());
+                    existField.setAccessible(true);
+                    existField.set(existUser, value);
+                }
+            }
+            users.put(existUser.getId(), existUser);
+            return existUser;
+        } catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            System.err.println("Ошибка при обновлении элемента: " + e.getMessage());
+            return null;
         }
-        return Optional.of(users.put(user.getId(), user));
     }
+//        User userOrDefault = users.getOrDefault(user.getId(), null);
+//        if (userOrDefault == null) {
+//            return Optional.empty();
+//        }
+//        return Optional.of(users.put(user.getId(), user));
+
 
     @Override
     public User addUser(User user) {
         user.setId(generatedId++);
-        return  users.put(user.getId(), user);
+        users.put(user.getId(), user);
+        return user;
     }
 }

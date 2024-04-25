@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.annotation.Update;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -20,7 +21,7 @@ public class ItemDto {
    private long id;
    @NotNull
    @NotBlank
-   private String title;
+   private String name;
    @NotNull
    private boolean isAvailable;
    @NotNull

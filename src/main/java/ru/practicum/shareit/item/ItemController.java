@@ -19,8 +19,8 @@ public class ItemController extends BaseController<ItemDto, Long> {
     private final ItemService itemService;
 
     @Override
-    protected ItemDto createEntity(ItemDto item, Long userId) {
-        return itemService.addItem(item, userId);
+    protected ItemDto createEntity(ItemDto itemDto, Long userId) {
+        return itemService.addItem(itemDto, userId);
     }
 
     @Override
@@ -29,8 +29,8 @@ public class ItemController extends BaseController<ItemDto, Long> {
     }
 
     @Override
-    protected ItemDto updateEntity(ItemDto item, Long userId) {
-        return itemService.updateItem(item, userId);
+    protected ItemDto updateEntity(ItemDto itemDto, Long id, Long userId) {
+        return itemService.updateItem(itemDto, id, userId);
     }
 
     @Override

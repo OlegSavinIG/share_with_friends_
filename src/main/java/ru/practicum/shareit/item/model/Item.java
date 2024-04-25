@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class Item {
     private Long id;
-    private String title;
+    private String name;
     private Long ownerId;
     private String description;
     private boolean isAvailable;

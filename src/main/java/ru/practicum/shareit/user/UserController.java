@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.base.BaseController;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -10,22 +11,22 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-public class UserController extends BaseController<User, Long> {
+public class UserController extends BaseController<UserDto, Long> {
     private final UserService userService;
 
     @Override
-    protected User createEntity(User user) {
-        return userService.addUser(user);
+    protected UserDto createEntity(UserDto userDto, Long userId) {
+        return userService.addUser(userDto);
     }
 
     @Override
-    protected User getEntityById(Long id) {
+    protected UserDto getEntityById(Long id) {
         return userService.getUserById(id);
     }
 
     @Override
-    protected User updateEntity(User user) {
-        return userService.updateUser(user);
+    protected UserDto updateEntity(UserDto userDto, Long id, Long userId) {
+        return userService.updateUser(userDto, id);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class UserController extends BaseController<User, Long> {
     }
 
     @Override
-    protected List<User> getAllEntities() {
+    protected List<UserDto> getAllEntities() {
         return userService.getAllUsers();
     }
 //    @PostMapping

@@ -15,10 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
+    private Long id;
     @NotNull
     private String name;
     @NotNull
     @Email
     private String email;
-    private final List<Item> items = new ArrayList<>();
 }

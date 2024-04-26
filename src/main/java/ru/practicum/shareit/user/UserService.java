@@ -21,7 +21,7 @@ public class UserService {
 
     public boolean deleteUserById(Long userId) {
         allUserEmails.remove(getUserById(userId).getEmail());
-           return userStorage.deleteById(userId);
+        return userStorage.deleteById(userId);
     }
 
     public List<UserDto> getAllUsers() {
@@ -43,16 +43,16 @@ public class UserService {
             throw new ValidationException("Пользователь с таким email: %s уже существует", userDto.getEmail());
         }
         if (userDto.getEmail() != null) {
-           allUserEmails.remove(getUserById(id).getEmail());
-           allUserEmails.add(userDto.getEmail());
+            allUserEmails.remove(getUserById(id).getEmail());
+            allUserEmails.add(userDto.getEmail());
         }
         return UserDtoMapper.userToUserDto(userStorage.updateUser(user, id));
     }
 
     public UserDto addUser(UserDto userDto) {
         if (allUserEmails.isEmpty()) {
-           allUserEmails.addAll(getAllUsers().stream()
-                   .map(userDto1 -> userDto1.getEmail()).collect(Collectors.toList()));
+            allUserEmails.addAll(getAllUsers().stream()
+                    .map(userDto1 -> userDto1.getEmail()).collect(Collectors.toList()));
         }
         if (allUserEmails.contains(userDto.getEmail())) {
             throw new ValidationException("Пользователь с таким email: %s уже существует", userDto.getEmail());

@@ -17,12 +17,9 @@ public class ItemService {
 
     private final ItemStorage itemStorage;
     private final UserService userService;
-    private Map<Long, List<Long>> itemIdsForUser = new HashMap<>();
+    private final Map<Long, List<Long>> itemIdsForUser = new HashMap<>();
 
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-//        if (!userService.isUserExist(userId)) {
-//            throw new NotExistException("Пользователь не существует");
-//        }
         userService.isUserExist(userId);
         Item item = ItemDtoMapper.itemDtoCreateItem(itemDto, userId);
         Item itemFromStorage = itemStorage.addItem(item);
@@ -40,11 +37,8 @@ public class ItemService {
     }
 
     public ItemDto updateItem(ItemDto itemDto, long id, Long userId) {
-//        if (!userService.isUserExist(userId)) {
-//            throw new NotExistException("Пользователь не существует");
-//        }
         userService.isUserExist(userId);
-        if (!itemIdsForUser.keySet().contains(userId) || !itemIdsForUser.get(userId).contains(id)) {
+        if (!itemIdsForUser.containsKey(userId) || !itemIdsForUser.get(userId).contains(id)) {
             throw new NotExistException("У пользователя с id %d, нет предмета с id %d", userId, id);
         }
         itemDto.setId(id);
@@ -57,9 +51,6 @@ public class ItemService {
     }
 
     public List<ItemDto> getAllItems(Long userId) {
-//        if (!userService.isUserExist(userId)) {
-//            throw new NotExistException("Пользователь не существует");
-//        }
         userService.isUserExist(userId);
         List<Long> itemIds = itemIdsForUser.get(userId);
         if (itemIds.isEmpty()) {

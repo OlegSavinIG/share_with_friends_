@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.base.BaseController;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,9 +48,10 @@ public class ItemController extends BaseController<ItemDto, Long> {
     protected List<ItemDto> getAllEntities(Long userId) {
         return itemService.getAllItems(userId);
     }
+
     @GetMapping("/search")
     public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
-                                             @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         if (userId == null || text == null) {
             throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
         }

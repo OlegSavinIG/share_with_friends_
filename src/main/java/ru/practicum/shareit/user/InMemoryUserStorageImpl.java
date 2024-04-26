@@ -8,7 +8,7 @@ import java.util.*;
 
 @Repository
 public class InMemoryUserStorageImpl implements UserStorage {
-    private Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private long generatedId = 1;
 
     @Override
@@ -48,11 +48,6 @@ public class InMemoryUserStorageImpl implements UserStorage {
             return null;
         }
     }
-//        User userOrDefault = users.getOrDefault(user.getId(), null);
-//        if (userOrDefault == null) {
-//            return Optional.empty();
-//        }
-//        return Optional.of(users.put(user.getId(), user));
 
 
     @Override

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.annotation.Update;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -18,14 +17,14 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
-   @NotNull(groups = {Update.class})
-   private long id;
-   @NotNull
-   @NotBlank
-   private String name;
-   @NotNull
-   private Boolean available;
-   @NotNull
-   private String description;
-   private String review;
+    @NotNull(groups = {Update.class})
+    private long id;
+    @NotNull
+    @NotBlank
+    private String name;
+    @NotNull
+    private Boolean available;
+    @NotNull
+    private String description;
+    private String review;
 }

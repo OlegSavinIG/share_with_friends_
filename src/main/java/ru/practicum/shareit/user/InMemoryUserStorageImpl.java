@@ -1,9 +1,9 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 @Repository
@@ -28,25 +28,16 @@ public class InMemoryUserStorageImpl implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user, long id) {
-        try {
-            User existUser = users.get(id);
-            Field[] declaredFields = user.getClass().getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                declaredField.setAccessible(true);
-                Object value = declaredField.get(user);
-                if (value != null) {
-                    Field existField = existUser.getClass().getDeclaredField(declaredField.getName());
-                    existField.setAccessible(true);
-                    existField.set(existUser, value);
-                }
-            }
-            users.put(existUser.getId(), existUser);
-            return existUser;
-        } catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            System.err.println("Ошибка при обновлении элемента: " + e.getMessage());
-            return null;
+    public User updateUser(UserDto userDto, long id) {
+        User existUser = users.get(id);
+        if (userDto.getName() != null) {
+            existUser.setName(userDto.getName());
         }
+        if (userDto.getEmail() != null) {
+            existUser.setEmail(userDto.getEmail());
+        }
+        users.put(existUser.getId(), existUser);
+        return existUser;
     }
 
 

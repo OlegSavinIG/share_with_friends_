@@ -4,7 +4,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,25 +28,20 @@ public class InMemoryItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Item updateItem(ItemDto item) {
-        try {
-            Item existItem = items.get(item.getId());
-            Field[] declaredFields = item.getClass().getDeclaredFields();
-            for (Field field : declaredFields) {
-                field.setAccessible(true);
-                Object value = field.get(item);
-                if (value != null) {
-                    Field itemField = existItem.getClass().getDeclaredField(field.getName());
-                    itemField.setAccessible(true);
-                    itemField.set(existItem, value);
-                }
-            }
-            items.put(existItem.getId(), existItem);
-            return existItem;
-        } catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            System.err.println("Ошибка при обновлении элемента: " + e.getMessage());
-            return null;
+    public Item updateItem(ItemDto itemDto) {
+        Item existItem = items.get(itemDto.getId());
+        if (itemDto.getName() != null) {
+            existItem.setName(itemDto.getName());
         }
+        if (itemDto.getDescription() != null) {
+            existItem.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            existItem.setAvailable(itemDto.getAvailable());
+        }
+        items.put(existItem.getId(), existItem);
+        return existItem;
+
     }
 
 

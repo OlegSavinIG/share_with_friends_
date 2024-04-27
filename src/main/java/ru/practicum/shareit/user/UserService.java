@@ -35,9 +35,8 @@ public class UserService {
     }
 
     public UserDto updateUser(UserDto userDto, long id) {
-        User user = UserDtoMapper.userDtoToUser(userDto);
         if (userDto.getEmail() != null && userDto.getEmail().equals(getUserById(id).getEmail())) {
-            return UserDtoMapper.userToUserDto(userStorage.updateUser(user, id));
+            return UserDtoMapper.userToUserDto(userStorage.updateUser(userDto, id));
         }
         if (allUserEmails.contains(userDto.getEmail())) {
             throw new ValidationException("Пользователь с таким email: %s уже существует", userDto.getEmail());
@@ -46,7 +45,7 @@ public class UserService {
             allUserEmails.remove(getUserById(id).getEmail());
             allUserEmails.add(userDto.getEmail());
         }
-        return UserDtoMapper.userToUserDto(userStorage.updateUser(user, id));
+        return UserDtoMapper.userToUserDto(userStorage.updateUser(userDto, id));
     }
 
     public UserDto addUser(UserDto userDto) {

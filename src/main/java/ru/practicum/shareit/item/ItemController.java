@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.base.BaseController;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.memory.inMemoryItemService;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/items")
 @RequiredArgsConstructor
 public class ItemController extends BaseController<ItemDto, Long> {
-    private final ItemService itemService;
+    private final inMemoryItemService itemService;
 
     @Override
     protected ItemDto createEntity(ItemDto itemDto, Long userId) {
@@ -32,16 +33,16 @@ public class ItemController extends BaseController<ItemDto, Long> {
     }
 
     @Override
-    protected ItemDto updateEntity(ItemDto itemDto, Long id, Long userId) {
+    protected ItemDto updateEntity(ItemDto itemDto, Long itemId, Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.updateItem(itemDto, id, userId);
+        return itemService.updateItem(itemDto, itemId, userId);
     }
 
     @Override
-    protected boolean deleteEntity(Long id) {
-        return itemService.deleteItemById(id);
+    protected void deleteEntity(Long id) {
+         itemService.deleteItemById(id);
     }
 
     @Override

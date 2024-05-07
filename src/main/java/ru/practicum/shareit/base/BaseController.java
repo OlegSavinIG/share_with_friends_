@@ -34,8 +34,7 @@ public abstract class BaseController<T, D> {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable D id) {
-        boolean deleted = deleteEntity(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -50,7 +49,7 @@ public abstract class BaseController<T, D> {
 
     protected abstract T updateEntity(T entity, D id, D userId);
 
-    protected abstract boolean deleteEntity(D id);
+    protected abstract void deleteEntity(D id);
 
     protected abstract List<T> getAllEntities(D userId);
 }

@@ -1,12 +1,13 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.memory;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserStorage {
+public interface UserStorage{
     Optional<User> getById(Long userId);
 
     boolean deleteById(Long userId);

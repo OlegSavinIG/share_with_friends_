@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-bookings.
@@ -27,10 +28,10 @@ public class Booking {
     @ToString.Exclude
     private User owner;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "renter_id")
+    @JoinColumn(name = "booker_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
-    private User renter;
+    private User booker;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -38,4 +39,8 @@ public class Booking {
     private Item item;
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
+    @Column(name = "start_time")
+    private LocalDateTime start;
+    @Column(name = "end_time")
+    private LocalDateTime end;
 }

@@ -17,10 +17,12 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE IF NOT EXISTS bookings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     owner_id BIGINT,
-    renter_id BIGINT,
+    booker_id BIGINT,
     item_id BIGINT,
     status VARCHAR(64),
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
     CONSTRAINT fk_booking_owner FOREIGN KEY (owner_id) REFERENCES users (id),
-    CONSTRAINT fk_booking_renter FOREIGN KEY (renter_id) REFERENCES users (id),
+    CONSTRAINT fk_booking_renter FOREIGN KEY (booker_id) REFERENCES users (id),
     CONSTRAINT fk_booking_item FOREIGN KEY (item_id) REFERENCES items (id)
 );

@@ -86,5 +86,4 @@ public class BookingServiceImpl implements BookingService {
                 .map(BookingMapper::mapToBookingDto)
                 .collect(Collectors.toList());
     }
-    }
 }

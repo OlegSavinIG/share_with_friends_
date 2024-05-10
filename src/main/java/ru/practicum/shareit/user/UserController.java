@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-public class UserController extends BaseController<UserDto, Long> {
+public class UserController extends BaseController<UserDto, Long, UserDto> {
     private final inMemoryUserService userService;
 
     @Override

@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.NotExistException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.comment.CommentMapper;
+import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoMapper;
+import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -18,14 +23,15 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
         boolean userExistsById = userRepository.existsById(userId);
         if (userExistsById) {
             User user = userRepository.findById(userId).get();
-            Item savedItem = itemRepository.save(ItemDtoMapper.itemDtoToSaveItem(itemDto, user));
-            return ItemDtoMapper.mapItemToItemDto(savedItem);
+            Item savedItem = itemRepository.save(ItemMapper.itemDtoToSaveItem(itemDto, user));
+            return ItemMapper.mapItemToItemDto(savedItem);
         } else throw new NotExistException("Пользователь не существует с таким id %d", userId);
     }
 
@@ -33,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItemById(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotExistException("Предмет с этим id %d не существует", id));
-        return ItemDtoMapper.mapItemToItemDto(item);
+        return ItemMapper.mapItemToItemDto(item);
     }
 
     @Override
@@ -52,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
                 existItem.setAvailable(itemDto.getAvailable());
             }
             Item savedItem = itemRepository.save(existItem);
-            return ItemDtoMapper.mapItemToItemDto(savedItem);
+            return ItemMapper.mapItemToItemDto(savedItem);
         } else throw new DataNotFoundException("Неправильно переданы данные для обновления");
     }
 
@@ -62,10 +68,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(Long userId) {
+    public List<ItemDtoWithBooking> getAllItemsByUserId(Long userId) {
         List<Item> items = itemRepository.findAllByUserId(userId);
         return items.stream()
-                .map(ItemDtoMapper::mapItemToItemDto)
+                .map(ItemMapper::mapItemToItemDtoWithBooking)
                 .collect(Collectors.toList());
     }
 
@@ -75,8 +81,24 @@ public class ItemServiceImpl implements ItemService {
         if (userExistById) {
             List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCase(text);
             return items.stream()
-                    .map(ItemDtoMapper::mapItemToItemDto)
+                    .map(ItemMapper::mapItemToItemDto)
                     .collect(Collectors.toList());
         } else throw new NotExistException("Пользователь не существует с таким id %d", userId);
+    }
+
+    @Override
+    public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
+        boolean userExist = userRepository.existsById(userId);
+        boolean itemExist = itemRepository.existsById(itemId);
+        if (!userExist) {
+            throw new NotExistException("Пользователь не существует с таким id %d", userId);
+        }
+        if (!itemExist) {
+            throw new NotExistException("Предмет не существует с таким id %d", itemId);
+        }
+        User user = userRepository.findById(userId).get();
+        Item item = itemRepository.findById(itemId).get();
+        Comment savedComment = commentRepository.save(CommentMapper.mapToComment(commentDto, user, item));
+        return CommentMapper.mapToCommentDto(savedComment);
     }
 }

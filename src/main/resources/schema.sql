@@ -26,3 +26,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     CONSTRAINT fk_booking_renter FOREIGN KEY (booker_id) REFERENCES users (id),
     CONSTRAINT fk_booking_item FOREIGN KEY (item_id) REFERENCES items (id)
 );
+CREATE TABLE IF NOT EXISTS comments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    text VARCHAR(255) NOT NULL,
+    user_id BIGINT NOT NULL,
+    create_time TIMESTAMP NOT NULL,
+    item_id BIGINT NOT NULL,
+    CONSTRAINT fk_author FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES items(id)
+);

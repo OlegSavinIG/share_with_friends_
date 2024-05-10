@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 
-public abstract class BaseController<T, D> {
+public abstract class BaseController<T, D, U> {
 
     @PostMapping
     public ResponseEntity<T> create(@Valid @RequestBody T entity,
@@ -38,8 +38,8 @@ public abstract class BaseController<T, D> {
     }
 
     @GetMapping
-    public ResponseEntity<List<T>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
-        List<T> entities = getAllEntities(userId);
+    public ResponseEntity<List<U>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
+        List<U> entities = getAllEntities(userId);
         return ResponseEntity.ok(entities);
     }
 
@@ -51,5 +51,5 @@ public abstract class BaseController<T, D> {
 
     protected abstract void deleteEntity(D id);
 
-    protected abstract List<T> getAllEntities(D userId);
+    protected abstract List<U> getAllEntities(D userId);
 }

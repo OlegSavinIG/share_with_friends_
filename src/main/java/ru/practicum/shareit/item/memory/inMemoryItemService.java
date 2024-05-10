@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoMapper;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -24,11 +24,11 @@ public class inMemoryItemService {
     public ItemDto addItem(ItemDto itemDto, Long userId) {
         userService.isUserExist(userId);
         UserDto userById = userService.getUserById(userId);
-        Item item = ItemDtoMapper.itemDtoToSaveItem(itemDto, UserDtoMapper.userDtoToUser(userById));
+        Item item = ItemMapper.itemDtoToSaveItem(itemDto, UserDtoMapper.userDtoToUser(userById));
         Item itemFromStorage = itemStorage.addItem(item);
         List<Long> itemIds = itemIdsForUser.computeIfAbsent(userId, k -> new ArrayList<>());
         itemIds.add(itemFromStorage.getId());
-        return ItemDtoMapper.mapItemToItemDto(itemFromStorage);
+        return ItemMapper.mapItemToItemDto(itemFromStorage);
     }
 
     public ItemDto getItemById(Long id) {
@@ -36,7 +36,7 @@ public class inMemoryItemService {
         if (itemById == null) {
             throw new NotExistException("Предмет с таким id {} не существует");
         }
-        return ItemDtoMapper.mapItemToItemDto(itemById.get());
+        return ItemMapper.mapItemToItemDto(itemById.get());
     }
 
     public ItemDto updateItem(ItemDto itemDto, long id, Long userId) {
@@ -46,7 +46,7 @@ public class inMemoryItemService {
         }
         itemDto.setId(id);
         Item updatedItem = itemStorage.updateItem(itemDto);
-        return ItemDtoMapper.mapItemToItemDto(updatedItem);
+        return ItemMapper.mapItemToItemDto(updatedItem);
     }
 
     public void deleteItemById(Long id) {
@@ -60,7 +60,7 @@ public class inMemoryItemService {
             throw new NotExistException("У пользователя нет предметов");
         }
         List<Item> allItems = itemStorage.getAllItems(itemIds);
-        List<ItemDto> itemDtos = allItems.stream().map(ItemDtoMapper::mapItemToItemDto).collect(Collectors.toList());
+        List<ItemDto> itemDtos = allItems.stream().map(ItemMapper::mapItemToItemDto).collect(Collectors.toList());
         return itemDtos;
     }
 
@@ -68,7 +68,7 @@ public class inMemoryItemService {
         userService.isUserExist(userId);
         List<Item> items = itemStorage.searchByNameOrDescription(text, userId);
         return items.stream()
-                .map(ItemDtoMapper::mapItemToItemDto)
+                .map(ItemMapper::mapItemToItemDto)
                 .collect(Collectors.toList());
     }
 }

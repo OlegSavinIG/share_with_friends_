@@ -66,6 +66,6 @@ public class ItemController extends BaseController<ItemDto, Long, ItemDtoWithBoo
     private CommentDto createComment(@PathVariable Long itemId,
                                      @RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                      @RequestBody CommentDto commentDto) {
-        return itemService.createComment(itemId, userId);
+        return itemService.createComment(itemId, userId, commentDto);
     }
 }

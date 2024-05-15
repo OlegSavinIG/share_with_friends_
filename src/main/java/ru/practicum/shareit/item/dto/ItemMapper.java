@@ -21,10 +21,10 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .lastBookerId(item.getBookings().getFirst().getBooker().getId())
-                .nextBookerId(item.getBookings().getLast().getBooker().getId())
-                .lastBookingId(item.getBookings().getFirst().getId())
-                .nextBookingId(item.getBookings().getLast().getId())
+                .lastBookerId(item.getBookings().last().getBooker().getId())
+                .nextBookerId(item.getBookings().first().getBooker().getId())
+                .lastBookingId(item.getBookings().last().getId())
+                .nextBookingId(item.getBookings().first().getId())
                 .build();
     }
 

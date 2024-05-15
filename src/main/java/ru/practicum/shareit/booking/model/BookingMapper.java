@@ -1,11 +1,11 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class BookingMapper {
+public class BookingMapper {
     public static Booking mapToBooking(Item item, User booker, User owner, BookingDto bookingDto) {
         return Booking.builder()
                 .owner(owner)

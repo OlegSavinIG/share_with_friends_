@@ -1,9 +1,8 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.annotation.Update;
-import ru.practicum.shareit.booking.BookingStatus;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;

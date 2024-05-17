@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.model.User;
 
@@ -28,7 +28,7 @@ public class Item {
     @ToString.Exclude
     private User user;
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-    private final TreeSet<Booking> bookings = new TreeSet<>(Comparator.comparing(Booking::getEnd));
+    private final List<Booking> bookings = new ArrayList<>(); //= new TreeSet<>(Comparator.comparing(Booking::getEnd));
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private final List<Comment> comments = new ArrayList<>();
 }

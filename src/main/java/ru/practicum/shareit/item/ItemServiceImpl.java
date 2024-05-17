@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchByNameOrDescription(String text, Long userId) {
         boolean userExistById = userRepository.existsById(userId);
         if (userExistById) {
-            List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCase(text);
+            List<Item> items = itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text);
             return items.stream()
                     .map(ItemMapper::mapItemToItemDto)
                     .collect(Collectors.toList());

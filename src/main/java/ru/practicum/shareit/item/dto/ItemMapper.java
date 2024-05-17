@@ -2,8 +2,13 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.Comparator;
+import java.util.TreeSet;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
 
@@ -16,15 +21,17 @@ public class ItemMapper {
                 .build();
     }
     public static ItemDtoWithBooking mapItemToItemDtoWithBooking(Item item) {
+       TreeSet<Booking> bookings = new TreeSet<>(Comparator.comparing(Booking::getEnd));
+       bookings.addAll(item.getBookings());
         return ItemDtoWithBooking.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .lastBookerId(item.getBookings().last().getBooker().getId())
-                .nextBookerId(item.getBookings().first().getBooker().getId())
-                .lastBookingId(item.getBookings().last().getId())
-                .nextBookingId(item.getBookings().first().getId())
+                .lastBookerId(bookings.first().getBooker().getId())
+                .nextBookerId(bookings.last().getBooker().getId())
+                .lastBookingId(bookings.first().getId())
+                .nextBookingId(bookings.last().getId())
                 .build();
     }
 

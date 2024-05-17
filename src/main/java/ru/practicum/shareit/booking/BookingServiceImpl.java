@@ -2,22 +2,21 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingDto;
-import ru.practicum.shareit.booking.model.BookingMapper;
-import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookingServiceImpl implements BookingService {
+
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -32,6 +31,7 @@ public class BookingServiceImpl implements BookingService {
             User renter = userRepository.findById(bookerId).get();
             Booking booking = BookingMapper.mapToBooking(item, renter, owner, bookingDto);
             bookingRepository.save(booking);
+            item.getBookings().add(booking);
             return BookingMapper.mapToBookingDto(booking);
         } else throw new NotExistException("Не существует пользователь или предмет");
     }

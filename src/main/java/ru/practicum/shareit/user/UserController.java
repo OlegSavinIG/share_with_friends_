@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController extends BaseController<UserDto, Long, UserDto> {
-    private final inMemoryUserService userService;
+    private final UserServiceImpl userService;
 
     @Override
     protected UserDto createEntity(UserDto userDto, Long userId) {

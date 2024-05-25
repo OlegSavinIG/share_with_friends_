@@ -1,8 +1,10 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.annotation.Update;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -16,9 +18,12 @@ public class BookingDto {
     @NotNull(groups = {Update.class})
     private Long id;
     @NotNull
+
     private Long itemId;
-    private String itemName;
-    private Long bookerId;
+//    private Item item;
+//    private String itemName;
+//    private Long bookerId;
+//    private User booker;
     @NotNull
     private LocalDateTime start;
     @NotNull

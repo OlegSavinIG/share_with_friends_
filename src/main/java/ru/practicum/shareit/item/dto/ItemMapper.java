@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -23,6 +23,14 @@ public class ItemMapper {
     public static ItemDtoWithBooking mapItemToItemDtoWithBooking(Item item) {
        TreeSet<Booking> bookings = new TreeSet<>(Comparator.comparing(Booking::getEnd));
        bookings.addAll(item.getBookings());
+        if (bookings.isEmpty()) {
+            return ItemDtoWithBooking.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .available(item.getAvailable())
+                    .build();
+        }
         return ItemDtoWithBooking.builder()
                 .id(item.getId())
                 .name(item.getName())

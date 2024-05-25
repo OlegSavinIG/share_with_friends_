@@ -34,6 +34,7 @@ public abstract class BaseController<T, D, U> {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable D id) {
+        deleteEntity(id);
         return ResponseEntity.ok().build();
     }
 

@@ -25,4 +25,5 @@ public class GlobalExceptionHandler {
     public String handleDataNotFoundException(DataNotFoundException e) {
         return e.getMessage();
     }
+
 }

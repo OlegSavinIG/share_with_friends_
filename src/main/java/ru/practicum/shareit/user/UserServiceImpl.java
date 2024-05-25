@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,7 +17,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     @Override
+    @Transactional
     public void deleteUserById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotExistException("Не существует пользователь с этим id");
+        }
         userRepository.deleteById(userId);
     }
 

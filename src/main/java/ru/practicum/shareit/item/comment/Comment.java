@@ -1,8 +1,8 @@
 package ru.practicum.shareit.item.comment;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +22,13 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User author;
     @Column(name = "create_time")
     private LocalDateTime createTime;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @ToString.Exclude
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Item item;
 }

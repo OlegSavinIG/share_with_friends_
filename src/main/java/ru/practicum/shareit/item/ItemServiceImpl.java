@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
             }
             Item savedItem = itemRepository.save(existItem);
             return ItemMapper.mapItemToItemDto(savedItem);
-        } else throw new DataNotFoundException("Неправильно переданы данные для обновления");
+        } else throw new NotExistException("Неправильно переданы данные для обновления");
     }
 
     @Override
@@ -79,7 +79,8 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchByNameOrDescription(String text, Long userId) {
         boolean userExistById = userRepository.existsById(userId);
         if (userExistById) {
-            List<Item> items = itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(text, text);
+            List<Item> items = itemRepository
+                    .findByNameContainingIgnoreCaseAndAvailableIsTrueOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
             return items.stream()
                     .map(ItemMapper::mapItemToItemDto)
                     .collect(Collectors.toList());

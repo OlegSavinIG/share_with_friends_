@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class inMemoryUserService {
+public class InMemoryUserService {
 
     private final UserStorage userStorage;
     private final List<String> allUserEmails = new ArrayList<>();

@@ -8,17 +8,17 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
-import ru.practicum.shareit.user.memory.inMemoryUserService;
+import ru.practicum.shareit.user.memory.InMemoryUserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class inMemoryItemService {
+public class InMemoryItemService {
 
     private final ItemStorage itemStorage;
-    private final inMemoryUserService userService;
+    private final InMemoryUserService userService;
     private final Map<Long, List<Long>> itemIdsForUser = new HashMap<>();
 
     public ItemDto addItem(ItemDto itemDto, Long userId) {

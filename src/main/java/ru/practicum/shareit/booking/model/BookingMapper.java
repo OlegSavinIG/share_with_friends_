@@ -2,11 +2,11 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
     public static Booking mapToBooking(Item item, User booker, User owner, BookingDto bookingDto) {
@@ -19,27 +19,41 @@ public class BookingMapper {
                 .status(BookingStatus.WAITING)
                 .build();
     }
-    public static BookingDto mapToBookingDto (Booking booking) {
+
+    public static BookingDto mapToBookingDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
-//                .booker(booking.getBooker())
                 .end(booking.getEnd())
                 .start(booking.getStart())
                 .status(booking.getStatus())
                 .itemId(booking.getItem().getId())
-//                .itemName(booking.getItem().getName())
-//                .item(booking.getItem())
                 .build();
     }
 
     public static BookingResponse mapToBookingResponse(Booking booking) {
-        return BookingResponse.builder()
+        BookingResponse bookingResponse = BookingResponse.builder()
                 .id(booking.getId())
                 .booker(UserDtoMapper.userToUserDto(booking.getBooker()))
                 .end(booking.getEnd())
                 .start(booking.getStart())
-                .status(booking.getStatus())
                 .item(ItemMapper.mapItemToItemDto(booking.getItem()))
+                .build();
+        if (booking.getStatus().equals(BookingStatus.REJECTED) ||
+                booking.getStatus().equals(BookingStatus.WAITING)) {
+            bookingResponse.setStatus(booking.getStatus());
+            return bookingResponse;
+        }
+        bookingResponse.setStatus(BookingStatus.APPROVED);
+        return bookingResponse;
+    }
+
+    public static BookingResponseWithItem mapToBookingResponseWithItem(Booking booking) {
+        return BookingResponseWithItem.builder()
+                .id(booking.getId())
+                .bookerId(booking.getBooker().getId())
+                .start(booking.getStart())
+//                .end(booking.getEnd())
+                .status(booking.getStatus())
                 .build();
     }
 }

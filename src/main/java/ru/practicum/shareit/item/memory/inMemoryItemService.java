@@ -50,7 +50,7 @@ public class inMemoryItemService {
     }
 
     public void deleteItemById(Long id) {
-         itemStorage.deleteItemById(id);
+        itemStorage.deleteItemById(id);
     }
 
     public List<ItemDto> getAllItems(Long userId) {

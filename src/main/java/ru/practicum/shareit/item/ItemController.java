@@ -6,8 +6,8 @@ import ru.practicum.shareit.base.BaseController;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-public class ItemController extends BaseController<ItemDto, Long, ItemDtoWithBooking> {
+public class ItemController extends BaseController<ItemDto, Long> {
     private final ItemService itemService;
 
     @Override
@@ -29,8 +29,8 @@ public class ItemController extends BaseController<ItemDto, Long, ItemDtoWithBoo
     }
 
     @Override
-    protected ItemDto getEntityById(Long id) {
-        return itemService.getItemById(id);
+    protected ItemDto getEntityById(Long id, Long userId) {
+        return itemService.getItemById(id, userId);
     }
 
     @Override
@@ -43,10 +43,11 @@ public class ItemController extends BaseController<ItemDto, Long, ItemDtoWithBoo
 
     @Override
     protected void deleteEntity(Long id) {
-         itemService.deleteItemById(id);
+        itemService.deleteItemById(id);
     }
+
     @Override
-    protected List<ItemDtoWithBooking> getAllEntities(Long userId) {
+    protected List<ItemDto> getAllEntities(Long userId) {
         return itemService.getAllItemsByUserId(userId);
     }
 
@@ -62,10 +63,11 @@ public class ItemController extends BaseController<ItemDto, Long, ItemDtoWithBoo
         }
         return itemService.searchByNameOrDescription(text, userId);
     }
+
     @PostMapping("/{itemId}/comment")
     private CommentDto createComment(@PathVariable Long itemId,
                                      @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                     @RequestBody CommentDto commentDto) {
+                                     @Valid @RequestBody CommentDto commentDto) {
         return itemService.createComment(itemId, userId, commentDto);
     }
 }

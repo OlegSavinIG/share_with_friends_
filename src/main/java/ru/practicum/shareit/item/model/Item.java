@@ -6,7 +6,8 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.

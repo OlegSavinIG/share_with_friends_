@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 
-public abstract class BaseController<T, D, U> {
+public abstract class BaseController<T, D> {
 
     @PostMapping
     public ResponseEntity<T> create(@Valid @RequestBody T entity,
@@ -19,8 +19,9 @@ public abstract class BaseController<T, D, U> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<T> getById(@PathVariable D id) {
-        T entity = getEntityById(id);
+    public ResponseEntity<T> getById(@PathVariable D id,
+                                     @RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
+        T entity = getEntityById(id, userId);
         return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
@@ -39,18 +40,18 @@ public abstract class BaseController<T, D, U> {
     }
 
     @GetMapping
-    public ResponseEntity<List<U>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
-        List<U> entities = getAllEntities(userId);
+    public ResponseEntity<List<T>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
+        List<T> entities = getAllEntities(userId);
         return ResponseEntity.ok(entities);
     }
 
     protected abstract T createEntity(T entity, D userId);
 
-    protected abstract T getEntityById(D id);
+    protected abstract T getEntityById(D id, D userId);
 
     protected abstract T updateEntity(T entity, D id, D userId);
 
     protected abstract void deleteEntity(D id);
 
-    protected abstract List<U> getAllEntities(D userId);
+    protected abstract List<T> getAllEntities(D userId);
 }

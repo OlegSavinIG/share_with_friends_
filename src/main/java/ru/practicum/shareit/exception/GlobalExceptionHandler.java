@@ -26,4 +26,16 @@ public class GlobalExceptionHandler {
         return e.getMessage();
     }
 
+    @ExceptionHandler(UnsupportedStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleUnsupportedStatusException(UnsupportedStatusException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(BookingException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleBookingException(BookingException e) {
+        return e.getMessage();
+    }
+
 }

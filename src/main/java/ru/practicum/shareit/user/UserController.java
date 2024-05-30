@@ -5,14 +5,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.base.BaseController;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.memory.inMemoryUserService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-public class UserController extends BaseController<UserDto, Long, UserDto> {
+public class UserController extends BaseController<UserDto, Long> {
     private final UserServiceImpl userService;
 
     @Override
@@ -21,7 +20,7 @@ public class UserController extends BaseController<UserDto, Long, UserDto> {
     }
 
     @Override
-    protected UserDto getEntityById(Long id) {
+    protected UserDto getEntityById(Long id, Long userId) {
         return userService.getUserById(id);
     }
 
@@ -32,7 +31,7 @@ public class UserController extends BaseController<UserDto, Long, UserDto> {
 
     @Override
     protected void deleteEntity(Long id) {
-         userService.deleteUserById(id);
+        userService.deleteUserById(id);
     }
 
     @Override

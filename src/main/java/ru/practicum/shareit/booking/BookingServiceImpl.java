@@ -13,6 +13,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,19 +56,20 @@ public class BookingServiceImpl implements BookingService {
 //        Hibernate.initialize(itemDto);
 //        Hibernate.initialize(booker);
         if (approved.equals("true")) {
-            LocalDateTime start = booking.getStart();
-            LocalDateTime end = booking.getEnd();
-            LocalDateTime now = LocalDateTime.now();
-
-            if (start.isBefore(now) && end.isAfter(now)) {
-                booking.setStatus(BookingStatus.CURRENT);
-            }
-            if (end.isBefore(now)) {
-                booking.setStatus(BookingStatus.PAST);
-            }
-            if (start.isAfter(now)) {
-                booking.setStatus(BookingStatus.FUTURE);
-            }
+            booking.setStatus(BookingStatus.APPROVED);
+//            LocalDateTime start = booking.getStart();
+//            LocalDateTime end = booking.getEnd();
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            if (start.isBefore(now) && end.isAfter(now)) {
+//                booking.setStatus(BookingStatus.CURRENT);
+//            }
+//            if (end.isBefore(now)) {
+//                booking.setStatus(BookingStatus.PAST);
+//            }
+//            if (start.isAfter(now)) {
+//                booking.setStatus(BookingStatus.FUTURE);
+//            }
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
@@ -97,24 +99,24 @@ public class BookingServiceImpl implements BookingService {
         if (!bookerExist) {
             throw new NotExistException("Не существует пользователь с id %d", bookerId);
         }
-        if (state.equalsIgnoreCase("future")) {
-            List<Booking> bookings = bookingRepository.findAllByBookerIdExcludingRejectedAndPast(bookerId);
-            return bookings.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        if (state.equalsIgnoreCase("current")) {
-            List<Booking> bookings = bookingRepository.findAllByBookerIdAndStatusSortedByStart(bookerId, BookingStatus.valueOf(state.toUpperCase()));
-            return bookings.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-                    .collect(Collectors.toList());
-        }
-        List<Booking> bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.valueOf(state));
-        return bookings.stream()
+        List<Booking> bookings = bookingRepository.findAllByBookerIdExcludingRejected(bookerId);
+        List<BookingResponse> bookingResponses = bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                 .collect(Collectors.toList());
+        bookingResponses.stream()
+                .forEach(BookingStatusChecker::getBookingStatus);
+        if (state.equalsIgnoreCase("future")) {
+            bookingResponses.stream()
+                    .filter(bookingResponse -> bookingResponse.getStatus().equals(BookingStatus.FUTURE));
+            return bookingResponses;
+        }
+        if (state.equalsIgnoreCase("current")) {
+            bookingResponses.stream()
+                    .filter(bookingResponse -> bookingResponse.getStatus().equals(BookingStatus.CURRENT));
+            return bookingResponses;
+        }
+        return bookingResponses;
     }
 
     @Override
@@ -150,25 +152,24 @@ public class BookingServiceImpl implements BookingService {
         if (!bookerExist) {
             throw new NotExistException("Не существует пользователь с id %d", ownerId);
         }
-        if (state.equalsIgnoreCase("future")) {
-            List<Booking> bookings = bookingRepository.findAllByOwnerIdExcludingRejectedAndPast(ownerId);
-            return bookings.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        if (state.equalsIgnoreCase("current")) {
-            List<Booking> bookings = bookingRepository.findAllByOwnerIdSortedByStartGroupByItemId(ownerId);
-            return bookings.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-//                    .peek(bookingResponse -> bookingResponse.setStatus(BookingStatus.CURRENT))
-                    .collect(Collectors.toList());
-        }
-        List<Booking> bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStatus.valueOf(state));
-        return bookings.stream()
+        List<Booking> bookings = bookingRepository.findAllByOwnerIdExcludingRejected(ownerId);
+        List<BookingResponse> bookingResponses = bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                 .collect(Collectors.toList());
+        bookingResponses.stream()
+                .forEach(BookingStatusChecker::getBookingStatus);
+        if (state.equalsIgnoreCase("future")) {
+            bookingResponses.stream()
+                    .filter(bookingResponse -> bookingResponse.getStatus().equals(BookingStatus.FUTURE));
+            return bookingResponses;
+        }
+        if (state.equalsIgnoreCase("current")) {
+            bookingResponses.stream()
+                    .filter(bookingResponse -> bookingResponse.getStatus().equals(BookingStatus.CURRENT));
+            return bookingResponses;
+        }
+        return bookingResponses;
     }
 
     public void bookingValidator(BookingDto bookingDto) {

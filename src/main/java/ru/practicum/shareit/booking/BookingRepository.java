@@ -31,11 +31,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 //
 //    @Query("SELECT b FROM Booking b WHERE b.status NOT IN ('REJECTED', 'PAST')")
 //    List<Booking> findAllByOwnerIdExcludingRejectedAndPast(Long ownerId);
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.status NOT IN ('REJECTED', 'PAST')")
-    List<Booking> findAllByBookerIdExcludingRejectedAndPast(@Param("bookerId") Long bookerId);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.status NOT IN ('REJECTED')")
+    List<Booking> findAllByBookerIdExcludingRejected(@Param("bookerId") Long bookerId);
 
-    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId AND b.status NOT IN ('REJECTED', 'PAST')")
-    List<Booking> findAllByOwnerIdExcludingRejectedAndPast(@Param("ownerId") Long ownerId);
+    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId AND b.status NOT IN ('REJECTED')")
+    List<Booking> findAllByOwnerIdExcludingRejected(@Param("ownerId") Long ownerId);
 
     boolean existsByItemIdAndBookerId(Long itemId, Long bookerId);
 

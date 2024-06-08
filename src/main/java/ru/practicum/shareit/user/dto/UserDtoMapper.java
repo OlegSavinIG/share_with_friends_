@@ -6,8 +6,8 @@ import ru.practicum.shareit.user.model.User;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDtoMapper {
-    public static UserDto userToUserDto(User user) {
-        return UserDto.builder()
+    public static ru.practicum.shareit.user.dto.UserDto userToUserDto(User user) {
+        return ru.practicum.shareit.user.dto.UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())

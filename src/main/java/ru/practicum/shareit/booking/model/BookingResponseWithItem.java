@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class BookingResponseWithItem {
     private Long id;
     private LocalDateTime start;
-    //    private LocalDateTime end;
+    private LocalDateTime end;
     private BookingStatus status;
     private Long bookerId;
 }

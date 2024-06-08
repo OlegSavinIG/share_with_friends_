@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentMapper {
-    public static CommentDto mapToCommentDto(Comment comment) {
-        return CommentDto.builder()
+    public static ru.practicum.shareit.item.comment.CommentDto mapToCommentDto(ru.practicum.shareit.item.comment.Comment comment) {
+        return ru.practicum.shareit.item.comment.CommentDto.builder()
                 .authorName(comment.getAuthor().getName())
                 .id(comment.getId())
                 .text(comment.getText())
@@ -18,7 +18,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public static Comment mapToComment(CommentDto commentDto, User user, Item item) {
+    public static ru.practicum.shareit.item.comment.Comment mapToComment(CommentDto commentDto, User user, Item item) {
         return Comment.builder()
                 .author(user)
                 .createTime(LocalDateTime.now())

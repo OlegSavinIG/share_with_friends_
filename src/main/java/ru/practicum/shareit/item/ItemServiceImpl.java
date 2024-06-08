@@ -110,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
         if (!itemExist) {
             throw new NotExistException("Предмет не существует с таким id %d", itemId);
         }
-        boolean existStatus = bookingRepository.existsByItemIdAndBookerIdWithCurrentOrPastStatus(itemId, userId);
+        boolean existStatus = bookingRepository.existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(userId, itemId);
         if (!existStatus) {
             throw new DataNotFoundException("Вы не можете оставить коментарий");
         }

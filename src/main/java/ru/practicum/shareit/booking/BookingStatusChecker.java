@@ -3,26 +3,28 @@ package ru.practicum.shareit.booking;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingStatusChecker {
-    public static BookingStatus getBookingStatus(BookingResponse bookingResponse) {
+    public static void getBookingTimeStatus(Booking booking) {
+//        if (booking.getStatus().equals(BookingStatus.WAITING)) {
+//           booking.setStatus(BookingStatus.WAITING);
+//        }
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = bookingResponse.getStart();
-        LocalDateTime end = bookingResponse.getEnd();
+        LocalDateTime start = booking.getStart();
+        LocalDateTime end = booking.getEnd();
+        if (start.isAfter(now) && end.isAfter(now)) {
+            booking.setTimeStatus(BookingStatus.FUTURE);
+        }
         if (start.isBefore(now) && end.isAfter(now)) {
-            bookingResponse.setStatus(BookingStatus.CURRENT);
+            booking.setTimeStatus(BookingStatus.CURRENT);
         }
-        if (end.isBefore(now)) {
-            bookingResponse.setStatus(BookingStatus.PAST);
+        if (start.isBefore(now) && end.isBefore(now)) {
+            booking.setTimeStatus(BookingStatus.PAST);
         }
-        if (start.isAfter(now)) {
-            bookingResponse.setStatus(BookingStatus.FUTURE);
-        }
-        return bookingResponse.getStatus();
+
     }
 }

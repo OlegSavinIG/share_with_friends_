@@ -2,8 +2,9 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.BookingStatusChecker;
 import ru.practicum.shareit.booking.model.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingResponseWithItem;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,10 +31,20 @@ public class ItemMapper {
     }
 
     public static ItemDto mapToItemDtoWithBooking(Item item) {
-        List<Booking> bookings = item.getBookings().stream()
+        List<BookingResponseWithItem> bookingResponses = item.getBookings().stream()
+                .peek(BookingStatusChecker::getBookingTimeStatus)
                 .filter(booking -> !booking.getStatus().equals(BookingStatus.REJECTED))
-                .filter(booking -> !booking.getStatus().equals(BookingStatus.PAST))
-                .sorted(Comparator.comparing(Booking::getStart))
+                .map(BookingMapper::mapToBookingResponseWithItem)
+                .sorted(Comparator.comparing(BookingResponseWithItem::getStart))
+                .collect(Collectors.toList());
+        List<BookingResponseWithItem> lastBookings = bookingResponses.stream()
+                .filter(bookingResponseWithItem -> bookingResponseWithItem.getStart().isBefore(LocalDateTime.now()))
+                .sorted(Comparator.comparing(BookingResponseWithItem::getEnd).reversed())
+                .collect(Collectors.toList());
+
+        List<BookingResponseWithItem> nextBookings = bookingResponses.stream()
+                .filter(bookingResponseWithItem -> bookingResponseWithItem.getStart().isAfter(LocalDateTime.now()))
+                .sorted(Comparator.comparing(BookingResponseWithItem::getStart))
                 .collect(Collectors.toList());
 
         List<Comment> comments = item.getComments();
@@ -42,18 +54,10 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable());
-        if (!bookings.isEmpty()) {
-            itemDtoBuilder.lastBooking(BookingMapper.mapToBookingResponseWithItem(bookings.get(0)));
-//            itemDtoBuilder.lastBooking(BookingMapper.mapToBookingResponseWithItem(bookings.stream()
-//                    .filter(booking -> booking.getStatus().equals(BookingStatus.CURRENT))
-//                    .findFirst().get()));
-            if (bookings.size() > 1) {
-                itemDtoBuilder.nextBooking(BookingMapper.mapToBookingResponseWithItem(bookings.get(1)));
-//                itemDtoBuilder.nextBooking(BookingMapper.mapToBookingResponseWithItem(bookings.stream()
-//                        .filter(booking -> booking.getStatus().equals(BookingStatus.FUTURE))
-////                                .filter(booking -> !booking.getStatus().equals(BookingStatus.CURRENT))
-//                        .sorted(Comparator.comparing(Booking::getStart))
-//                        .findFirst().get()));
+        if (!lastBookings.isEmpty()) {
+            itemDtoBuilder.lastBooking(lastBookings.get(0));
+            if (!nextBookings.isEmpty()) {
+                itemDtoBuilder.nextBooking(nextBookings.get(0));
             }
         }
         if (!comments.isEmpty()) {

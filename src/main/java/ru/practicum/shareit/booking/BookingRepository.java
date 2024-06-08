@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +27,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsByOwnerId(Long userId);
 
-    //    @Query("SELECT b FROM Booking b WHERE b.status NOT IN ('REJECTED', 'PAST')")
-//    List<Booking> findAllByBookerIdExcludingRejectedAndPast(Long bookerId);
-//
-//    @Query("SELECT b FROM Booking b WHERE b.status NOT IN ('REJECTED', 'PAST')")
-//    List<Booking> findAllByOwnerIdExcludingRejectedAndPast(Long ownerId);
+    @Query("SELECT b FROM Booking b WHERE b.timeStatus NOT IN ('PAST')")
+    List<Booking> findAllByBookerIdExcludingPast(Long bookerId);
+
+    @Query("SELECT b FROM Booking b WHERE b.timeStatus NOT IN ('PAST')")
+    List<Booking> findAllByOwnerIdExcludingPast(Long ownerId);
+
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.status NOT IN ('REJECTED')")
     List<Booking> findAllByBookerIdExcludingRejected(@Param("bookerId") Long bookerId);
 
@@ -75,6 +77,35 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND (:status IS NULL OR b.status = :status) ORDER BY b.start")
     List<Booking> findAllByBookerIdAndStatusSortedByStart(@Param("bookerId") Long bookerId, @Param("status") BookingStatus status);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND b.start < :start")
+    boolean existsByBookerIdAndItemIdAndStartBefore(@Param("bookerId") Long bookerId, @Param("itemId") Long itemId, @Param("start") LocalDateTime start);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND b.start < :start AND b.timeStatus != 'PAST'")
+    boolean existsByBookerIdAndItemIdAndStartBeforeAndTimeStatusNot(@Param("bookerId") Long bookerId,
+                                                                    @Param("itemId") Long itemId,
+                                                                    @Param("start") LocalDateTime start);
+
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND b.start < :start AND b.timeStatus != 'PAST'")
+    Booking findByBookerIdAndItemIdAndStartBeforeAndTimeStatusNot(@Param("bookerId") Long bookerId,
+                                                                  @Param("itemId") Long itemId,
+                                                                  @Param("start") LocalDateTime start);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND b.timeStatus = 'FUTURE'")
+    boolean existsByBookerIdAndItemIdAndTimeStatusFuture(@Param("bookerId") Long bookerId,
+                                                         @Param("itemId") Long itemId);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND (b.timeStatus = 'PAST' OR b.timeStatus = 'CURRENT')")
+    boolean existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(@Param("bookerId") Long bookerId,
+                                                                @Param("itemId") Long itemId);
+
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.timeStatus = :timeStatus")
+    List<Booking> findByBookerIdAndTimeStatus(@Param("bookerId") Long bookerId,
+                                              @Param("timeStatus") BookingStatus timeStatus);
+
+    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId AND b.timeStatus = :timeStatus")
+    List<Booking> findByOwnerIdAndTimeStatus(@Param("ownerId") Long ownerId,
+                                             @Param("timeStatus") BookingStatus timeStatus);
 }
 
 

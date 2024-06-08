@@ -179,11 +179,11 @@ public class BookingServiceImpl implements BookingService {
                     .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                     .collect(Collectors.toList());
         }
-            return bookingsByOwnerId.stream()
-                    .filter(booking -> booking.getTimeStatus().equals(BookingStatus.PAST))
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
+        return bookingsByOwnerId.stream()
+                .filter(booking -> booking.getTimeStatus().equals(BookingStatus.PAST))
+                .map(BookingMapper::mapToBookingResponse)
+                .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
+                .collect(Collectors.toList());
     }
 
     public void bookingValidator(BookingDto bookingDto) {

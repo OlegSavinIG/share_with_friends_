@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.BookingException;
@@ -20,64 +23,71 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class BookingServiceImpl implements BookingService {
+
 
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-
     @Override
     public BookingResponse createBooking(Long bookerId, BookingDto bookingDto) {
+        log.info("Создание нового бронирования пользователем с id {}", bookerId);
         bookingValidator(bookingDto);
         boolean renterExist = userRepository.existsById(bookerId);
         if (!renterExist) {
             throw new NotExistException("Не найден пользователь");
         }
-        Item item = itemRepository.findById(bookingDto.getItemId()).get();
-        if (item.getUser().getId() == bookerId) {
+        Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() -> new NotExistException("Не найден предмет"));
+        if (item.getUser().getId().equals(bookerId)) {
             throw new BookingException("Владелец не может бронировать свою вещь");
         }
-        User owner = userRepository.findById(item.getUser().getId()).get();
-        User booker = userRepository.findById(bookerId).get();
+        User owner = item.getUser();
+        User booker = userRepository.findById(bookerId).orElseThrow(() -> new NotExistException("Не найден пользователь"));
         Booking booking = BookingMapper.mapToBooking(item, booker, owner, bookingDto);
         bookingRepository.save(booking);
         item.getBookings().add(booking);
+        log.info("Бронирование успешно создано с id {}", booking.getId());
         return BookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
     public BookingResponse approveBooking(Long bookingId, String approved, Long ownerId) {
+        log.info("Подтверждение бронирования с id {} владельцем с id {}", bookingId, ownerId);
         bookingApproveValidator(ownerId, bookingId);
-        Booking booking = bookingRepository.findById(bookingId).get();
-        booking.setStatus(approved.equals("true") ? BookingStatus.APPROVED : BookingStatus.REJECTED);
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotExistException("Не существует бронирование с id %d", bookingId));
+        booking.setStatus("true".equals(approved) ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         bookingRepository.save(booking);
+        log.info("Бронирование с id {} успешно {} владельцем с id {}", bookingId, approved.equals("true") ? "подтверждено" : "отклонено", ownerId);
         return BookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
     public BookingResponse findById(Long bookingId, Long userId) {
+        log.info("Поиск бронирования с id {} для пользователя с id {}", bookingId, userId);
         verifyUserExists(userId);
-        boolean existsBookingWithUserAsBooker = bookingRepository.existsByBookerId(userId);
-        boolean existsBookingWithUserAsOwner = bookingRepository.existsByOwnerId(userId);
-        if (!existsBookingWithUserAsBooker && !existsBookingWithUserAsOwner) {
-            throw new NotExistException("У пользователя с id %d нет бронирований", userId);
-        }
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotExistException("Не существует бронирование с id %d", bookingId));
+        boolean userIsBookerOrOwner = booking.getBooker().getId().equals(userId) || booking.getOwner().getId().equals(userId);
+        if (!userIsBookerOrOwner) {
+            throw new NotExistException("У пользователя с id %d нет бронирований", userId);
+        }
+        log.info("Бронирование с id {} найдено для пользователя с id {}", bookingId, userId);
         return BookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
     public List<BookingResponse> getBookingsByBooker(Long userId, String state) {
+        log.info("Запрос всех бронирований для пользователя с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
         List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
         return filterBookingsByState(bookings, state);
     }
 
-
     @Override
     public List<BookingResponse> getBookingsByOwner(Long userId, String state) {
+        log.info("Запрос всех бронирований для владельца с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
         List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
         return filterBookingsByState(bookings, state);
@@ -85,6 +95,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingResponse> allBookingsByBooker(Long bookerId) {
+        log.info("Запрос всех бронирований для пользователя с id {}", bookerId);
         verifyUserExists(bookerId);
         List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
         return bookings.stream()
@@ -95,6 +106,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingResponse> allBookingsByOwner(Long userId) {
+        log.info("Запрос всех бронирований для владельца с id {}", userId);
         verifyUserExists(userId);
         List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
         return bookings.stream()
@@ -104,6 +116,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingResponse> filterBookingsByState(List<Booking> bookings, String state) {
+        log.info("Фильтрация бронирований по состоянию {}", state);
         return bookings.stream()
                 .peek(BookingStatusChecker::setBookingTimeStatus)
                 .filter(booking -> matchState(booking, state))
@@ -132,6 +145,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void bookingValidator(BookingDto bookingDto) {
+        log.info("Валидация бронирования для предмета с id {}", bookingDto.getItemId());
         boolean itemExist = itemRepository.existsById(bookingDto.getItemId());
         if (!itemExist) {
             throw new NotExistException("Не найден предмет");
@@ -151,6 +165,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void verifyUserExists(Long userId) {
+        log.info("Проверка существования пользователя с id {}", userId);
         boolean userExists = userRepository.existsById(userId);
         if (!userExists) {
             throw new NotExistException("Не существует пользователь с id %d", userId);
@@ -158,6 +173,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void bookingApproveValidator(Long userId, Long bookingId) {
+        log.info("Валидация подтверждения бронирования с id {} владельцем с id {}", bookingId, userId);
         boolean userExist = userRepository.existsById(userId);
         boolean bookingExist = bookingRepository.existsById(bookingId);
         if (!userExist) {
@@ -166,8 +182,8 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingExist) {
             throw new NotExistException("Не существует бронирование с id %d", bookingId);
         }
-        Booking booking = bookingRepository.findById(bookingId).get();
-        if (booking.getBooker().getId() == userId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotExistException("Не существует бронирование с id %d", bookingId));
+        if (booking.getBooker().getId().equals(userId)) {
             throw new BookingException("Вам не возможно изменить бронирование");
         }
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {

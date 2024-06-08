@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
@@ -21,7 +24,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
+
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
@@ -29,53 +34,46 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        boolean userExistsById = userRepository.existsById(userId);
-        if (userExistsById) {
-            User user = userRepository.findById(userId).get();
-            Item savedItem = itemRepository.save(ItemMapper.itemDtoToSaveItem(itemDto, user));
-            return ItemMapper.mapItemToItemDto(savedItem);
-        } else throw new NotExistException("Пользователь не существует с таким id %d", userId);
+        log.info("Добавление нового предмета пользователем с id {}", userId);
+        User user = getUserById(userId);
+        Item savedItem = itemRepository.save(ItemMapper.itemDtoToSaveItem(itemDto, user));
+        log.info("Предмет с id {} успешно добавлен", savedItem.getId());
+        return ItemMapper.mapItemToItemDto(savedItem);
     }
 
     @Override
     public ItemDto getItemById(Long id, Long userId) {
-        boolean existOwner = bookingRepository.existsByItemIdAndOwnerId(id, userId);
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new NotExistException("Предмет с этим id %d не существует", id));
-        if (!existOwner) {
-            return ItemMapper.mapToItemDtoWithoutBooking(item);
-        }
-        return ItemMapper.mapToItemDtoWithBooking(item);
+        log.info("Запрос предмета с id {}", id);
+        Item item = getItemById(id);
+        boolean isOwner = bookingRepository.existsByItemIdAndOwnerId(id, userId);
+        log.info("Проверка права собственности для пользователя с id {}", userId);
+        return isOwner ? ItemMapper.mapToItemDtoWithBooking(item) : ItemMapper.mapToItemDtoWithoutBooking(item);
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, long itemId, Long userId) {
-        boolean userExistById = userRepository.existsById(userId);
-        boolean itemExistById = itemRepository.existsById(itemId);
-        if (userExistById && itemExistById) {
-            Item existItem = itemRepository.findById(itemId).get();
-            if (itemDto.getName() != null) {
-                existItem.setName(itemDto.getName());
-            }
-            if (itemDto.getDescription() != null) {
-                existItem.setDescription(itemDto.getDescription());
-            }
-            if (itemDto.getAvailable() != null) {
-                existItem.setAvailable(itemDto.getAvailable());
-            }
-            Item savedItem = itemRepository.save(existItem);
-            return ItemMapper.mapItemToItemDto(savedItem);
-        } else throw new NotExistException("Неправильно переданы данные для обновления");
+        log.info("Обновление предмета с id {}", itemId);
+        validateUserExistence(userId);
+        Item existItem = getItemById(itemId);
+        updateItemFields(itemDto, existItem);
+        Item savedItem = itemRepository.save(existItem);
+        log.info("Предмет с id {} успешно обновлен", savedItem.getId());
+        return ItemMapper.mapItemToItemDto(savedItem);
     }
 
     @Override
     public void deleteItemById(Long id) {
+        log.info("Удаление предмета с id {}", id);
         itemRepository.deleteById(id);
+        log.info("Предмет с id {} успешно удален", id);
     }
 
     @Override
     public List<ItemDto> getAllItemsByUserId(Long userId) {
+        log.info("Запрос всех предметов для пользователя с id {}", userId);
+        validateUserExistence(userId);
         List<Item> items = itemRepository.findAllByUserId(userId);
+        log.info("Найдено {} предметов для пользователя с id {}", items.size(), userId);
         return items.stream()
                 .map(ItemMapper::mapToItemDtoWithBooking)
                 .sorted(Comparator.comparing(
@@ -86,37 +84,89 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchByNameOrDescription(String text, Long userId) {
-        boolean userExistById = userRepository.existsById(userId);
-        if (userExistById) {
-            List<Item> items = itemRepository
-                    .findByNameContainingIgnoreCaseAndAvailableIsTrueOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
-            return items.stream()
-                    .map(ItemMapper::mapItemToItemDto)
-                    .collect(Collectors.toList());
-        } else throw new NotExistException("Пользователь не существует с таким id %d", userId);
+        log.info("Поиск предметов по тексту '{}'", text);
+        validateUserExistence(userId);
+        List<Item> items = itemRepository
+                .findByNameContainingIgnoreCaseAndAvailableIsTrueOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
+        log.info("Найдено {} предметов по запросу '{}'", items.size(), text);
+        return items.stream()
+                .map(ItemMapper::mapItemToItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
-        boolean userExist = userRepository.existsById(userId);
-        boolean itemExist = itemRepository.existsById(itemId);
-        boolean existsByItemIdAndBookerId = bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(itemId, userId);
-        if (!existsByItemIdAndBookerId) {
+        log.info("Создание комментария для предмета с id {} пользователем с id {}", itemId, userId);
+        validateUserExistence(userId);
+        validateItemExistence(itemId);
+        validateCommentEligibility(itemId, userId);
+
+        User user = getUserById(userId);
+        Item item = getItemById(itemId);
+        Comment savedComment = commentRepository.save(CommentMapper.mapToComment(commentDto, user, item));
+        log.info("Комментарий для предмета с id {} успешно создан", itemId);
+        return CommentMapper.mapToCommentDto(savedComment);
+    }
+
+    private void validateUserExistence(Long userId) {
+        log.info("Проверка существования пользователя с id {}", userId);
+        if (!userRepository.existsById(userId)) {
+            log.warn("Пользователь с id {} не существует", userId);
+            throw new NotExistException(String.format("Пользователь не существует с таким id %d", userId));
+        }
+    }
+
+    private void validateItemExistence(Long itemId) {
+        log.info("Проверка существования предмета с id {}", itemId);
+        if (!itemRepository.existsById(itemId)) {
+            log.warn("Предмет с id {} не существует", itemId);
+            throw new NotExistException(String.format("Предмет не существует с таким id %d", itemId));
+        }
+    }
+
+    private User getUserById(Long userId) {
+        log.info("Получение пользователя с id {}", userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("Пользователь с id {} не найден", userId);
+                    return new NotExistException(String.format("Пользователь не существует с таким id %d", userId));
+                });
+    }
+
+    private Item getItemById(Long itemId) {
+        log.info("Получение предмета с id {}", itemId);
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    log.warn("Предмет с id {} не найден", itemId);
+                    return new NotExistException(String.format("Предмет с этим id %d не существует", itemId));
+                });
+    }
+
+    private void updateItemFields(ItemDto itemDto, Item existItem) {
+        log.info("Обновление полей предмета с id {}", existItem.getId());
+        if (itemDto.getName() != null) {
+            log.debug("Обновление имени предмета: {}", itemDto.getName());
+            existItem.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            log.debug("Обновление описания предмета: {}", itemDto.getDescription());
+            existItem.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            log.debug("Обновление доступности предмета: {}", itemDto.getAvailable());
+            existItem.setAvailable(itemDto.getAvailable());
+        }
+    }
+
+    private void validateCommentEligibility(Long itemId, Long userId) {
+        log.info("Проверка возможности оставления комментария для предмета с id {} пользователем с id {}", itemId, userId);
+        if (!bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(itemId, userId)) {
+            log.warn("Пользователь с id {} не может оставить комментарий для предмета с id {}", userId, itemId);
             throw new DataNotFoundException("Вы не можете оставлять комментарии");
         }
-        if (!userExist) {
-            throw new NotExistException("Пользователь не существует с таким id %d", userId);
+        if (!bookingRepository.existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(userId, itemId)) {
+            log.warn("Пользователь с id {} не имеет права оставлять комментарии для предмета с id {}", userId, itemId);
+            throw new DataNotFoundException("Вы не можете оставить комментарий");
         }
-        if (!itemExist) {
-            throw new NotExistException("Предмет не существует с таким id %d", itemId);
-        }
-        boolean existStatus = bookingRepository.existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(userId, itemId);
-        if (!existStatus) {
-            throw new DataNotFoundException("Вы не можете оставить коментарий");
-        }
-        User user = userRepository.findById(userId).get();
-        Item item = itemRepository.findById(itemId).get();
-        Comment savedComment = commentRepository.save(CommentMapper.mapToComment(commentDto, user, item));
-        return CommentMapper.mapToCommentDto(savedComment);
     }
 }

@@ -41,7 +41,6 @@ public class BookingServiceImpl implements BookingService {
         User owner = userRepository.findById(item.getUser().getId()).get();
         User booker = userRepository.findById(bookerId).get();
         Booking booking = BookingMapper.mapToBooking(item, booker, owner, bookingDto);
-        BookingStatusChecker.setBookingTimeStatus(booking);
         bookingRepository.save(booking);
         item.getBookings().add(booking);
         return BookingMapper.mapToBookingResponse(booking);
@@ -51,28 +50,14 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse approveBooking(Long bookingId, String approved, Long ownerId) {
         bookingApproveValidator(ownerId, bookingId);
         Booking booking = bookingRepository.findById(bookingId).get();
-        if (approved.equals("true")) {
-            booking.setStatus(BookingStatus.APPROVED);
-            Long bookerId = booking.getBooker().getId();
-            Long itemId = booking.getItem().getId();
-            boolean isExistByTimeBefore = bookingRepository.existsByBookerIdAndItemIdAndStartBeforeAndTimeStatusNot(bookerId, itemId, booking.getStart());
-            if (isExistByTimeBefore) {
-                Booking bookingBefore = bookingRepository.findByBookerIdAndItemIdAndStartBeforeAndTimeStatusNot(bookerId, itemId, booking.getStart());
-                bookingBefore.setTimeStatus(BookingStatus.PAST);
-            }
-        } else {
-            booking.setStatus(BookingStatus.REJECTED);
-        }
+        booking.setStatus(approved.equals("true") ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         bookingRepository.save(booking);
         return BookingMapper.mapToBookingResponse(booking);
     }
 
     @Override
     public BookingResponse findById(Long bookingId, Long userId) {
-        boolean userExists = userRepository.existsById(userId);
-        if (!userExists) {
-            throw new NotExistException("Не существует пользователь с id %d", userId);
-        }
+        verifyUserExists(userId);
         boolean existsBookingWithUserAsBooker = bookingRepository.existsByBookerId(userId);
         boolean existsBookingWithUserAsOwner = bookingRepository.existsByOwnerId(userId);
         if (!existsBookingWithUserAsBooker && !existsBookingWithUserAsOwner) {
@@ -84,65 +69,24 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> allBookingsByBookerAndStatus(String state, Long bookerId) {
-        boolean bookerExist = userRepository.existsById(bookerId);
-        if (!bookerExist) {
-            throw new NotExistException("Не существует пользователь с id %d", bookerId);
-        }
-        if (state.equalsIgnoreCase("waiting")
-                || state.equalsIgnoreCase("rejected")
-                || state.equalsIgnoreCase("approved")) {
-            List<Booking> allByBookerIdAndStatus = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.valueOf(state));
-            allByBookerIdAndStatus.forEach(BookingStatusChecker::setBookingTimeStatus);
-            return allByBookerIdAndStatus.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        List<Booking> bookingsByBookerId = bookingRepository.findAllByBookerId(bookerId);
-        bookingsByBookerId.forEach(BookingStatusChecker::setBookingTimeStatus);
-        if (state.equalsIgnoreCase("future")) {
-            return bookingsByBookerId.stream()
-                    .filter(booking -> booking.getTimeStatus().equals(BookingStatus.FUTURE))
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        if (state.equalsIgnoreCase("current")) {
-            return bookingsByBookerId.stream()
-                    .filter(booking -> booking.getTimeStatus().equals(BookingStatus.CURRENT))
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        return bookingsByBookerId.stream()
-                .filter(booking -> booking.getTimeStatus().equals(BookingStatus.PAST))
-                .map(BookingMapper::mapToBookingResponse)
-                .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                .collect(Collectors.toList());
+    public List<BookingResponse> getBookingsByBooker(Long userId, String state) {
+        verifyUserExists(userId);
+        List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+        return filterBookingsByState(bookings, state);
+    }
+
+
+    @Override
+    public List<BookingResponse> getBookingsByOwner(Long userId, String state) {
+        verifyUserExists(userId);
+        List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
+        return filterBookingsByState(bookings, state);
     }
 
     @Override
     public List<BookingResponse> allBookingsByBooker(Long bookerId) {
-        boolean bookerExist = userRepository.existsById(bookerId);
-        if (!bookerExist) {
-            throw new NotExistException("Не существует пользователь с id %d", bookerId);
-        }
-        List<Booking> bookings = bookingRepository.findAllByBookerId(bookerId);
-        return bookings.stream()
-                .map(BookingMapper::mapToBookingResponse)
-                .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<BookingResponse> allBookingsByOwner(Long ownerId) {
-        boolean bookerExist = userRepository.existsById(ownerId);
-        if (!bookerExist) {
-            throw new NotExistException("Не существует пользователь с id %d", ownerId);
-        }
-        List<Booking> bookings = bookingRepository.findAllByOwnerId(ownerId);
+        verifyUserExists(bookerId);
+        List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
         return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
@@ -150,43 +94,44 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> allBookingsByOwnerAndStatus(String state, Long ownerId) {
-        boolean bookerExist = userRepository.existsById(ownerId);
-        if (!bookerExist) {
-            throw new NotExistException("Не существует пользователь с id %d", ownerId);
-        }
-        if (state.equalsIgnoreCase("waiting") || state.equalsIgnoreCase("rejected")) {
-            List<Booking> allByOwnerIdAndStatusIdAndStatus = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStatus.valueOf(state));
-            allByOwnerIdAndStatusIdAndStatus.forEach(BookingStatusChecker::setBookingTimeStatus);
-            return allByOwnerIdAndStatusIdAndStatus.stream()
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        List<Booking> bookingsByOwnerId = bookingRepository.findAllByOwnerId(ownerId);
-        bookingsByOwnerId.forEach(BookingStatusChecker::setBookingTimeStatus);
-        if (state.equalsIgnoreCase("future")) {
-            return bookingsByOwnerId.stream()
-                    .filter(booking -> booking.getTimeStatus().equals(BookingStatus.FUTURE))
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        if (state.equalsIgnoreCase("current")) {
-            return bookingsByOwnerId.stream()
-                    .filter(booking -> booking.getTimeStatus().equals(BookingStatus.CURRENT))
-                    .map(BookingMapper::mapToBookingResponse)
-                    .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
-                    .collect(Collectors.toList());
-        }
-        return bookingsByOwnerId.stream()
-                .filter(booking -> booking.getTimeStatus().equals(BookingStatus.PAST))
+    public List<BookingResponse> allBookingsByOwner(Long userId) {
+        verifyUserExists(userId);
+        List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
+        return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                 .collect(Collectors.toList());
     }
 
-    public void bookingValidator(BookingDto bookingDto) {
+    private List<BookingResponse> filterBookingsByState(List<Booking> bookings, String state) {
+        return bookings.stream()
+                .peek(BookingStatusChecker::setBookingTimeStatus)
+                .filter(booking -> matchState(booking, state))
+                .map(BookingMapper::mapToBookingResponse)
+                .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private boolean matchState(Booking booking, String state) {
+        switch (state) {
+            case "ALL":
+                return true;
+            case "CURRENT":
+                return booking.getTimeStatus().equals(BookingStatus.CURRENT);
+            case "PAST":
+                return booking.getTimeStatus().equals(BookingStatus.PAST);
+            case "FUTURE":
+                return booking.getTimeStatus().equals(BookingStatus.FUTURE);
+            case "WAITING":
+                return booking.getStatus().equals(BookingStatus.WAITING);
+            case "REJECTED":
+                return booking.getStatus().equals(BookingStatus.REJECTED);
+            default:
+                throw new BookingException("Unknown state: " + state);
+        }
+    }
+
+    private void bookingValidator(BookingDto bookingDto) {
         boolean itemExist = itemRepository.existsById(bookingDto.getItemId());
         if (!itemExist) {
             throw new NotExistException("Не найден предмет");
@@ -205,7 +150,14 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public void bookingApproveValidator(Long userId, Long bookingId) {
+    private void verifyUserExists(Long userId) {
+        boolean userExists = userRepository.existsById(userId);
+        if (!userExists) {
+            throw new NotExistException("Не существует пользователь с id %d", userId);
+        }
+    }
+
+    private void bookingApproveValidator(Long userId, Long bookingId) {
         boolean userExist = userRepository.existsById(userId);
         boolean bookingExist = bookingRepository.existsById(bookingId);
         if (!userExist) {

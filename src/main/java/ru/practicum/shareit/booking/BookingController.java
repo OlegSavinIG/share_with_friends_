@@ -55,7 +55,7 @@ public class BookingController {
                 throw new UnsupportedStatusException("UNSUPPORTED_STATUS");
             }
         }
-        return bookingService.allBookingsByBookerAndStatus(state, bookerId);
+        return bookingService.getBookingsByBooker(bookerId, state);
     }
 
     @GetMapping("/owner")
@@ -69,6 +69,6 @@ public class BookingController {
         if (!anyMatchStatus) {
             throw new UnsupportedStatusException("Unknown state: " + state);
         }
-        return bookingService.allBookingsByOwnerAndStatus(state, ownerId);
+        return bookingService.getBookingsByOwner(ownerId, state);
     }
 }

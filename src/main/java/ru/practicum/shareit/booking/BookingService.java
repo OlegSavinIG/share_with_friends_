@@ -12,11 +12,11 @@ public interface BookingService {
 
     BookingResponse findById(Long bookingId, Long userId);
 
-    List<BookingResponse> allBookingsByBookerAndStatus(String state, Long userId);
+    List<BookingResponse> getBookingsByBooker(Long userId, String state);
+
+    List<BookingResponse> getBookingsByOwner(Long userId, String state);
 
     List<BookingResponse> allBookingsByBooker(Long bookerId);
-
-    List<BookingResponse> allBookingsByOwnerAndStatus(String state, Long userId);
 
     List<BookingResponse> allBookingsByOwner(Long userId);
 

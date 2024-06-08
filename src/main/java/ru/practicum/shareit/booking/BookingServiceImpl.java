@@ -41,7 +41,7 @@ public class BookingServiceImpl implements BookingService {
         User owner = userRepository.findById(item.getUser().getId()).get();
         User booker = userRepository.findById(bookerId).get();
         Booking booking = BookingMapper.mapToBooking(item, booker, owner, bookingDto);
-        BookingStatusChecker.getBookingTimeStatus(booking);
+        BookingStatusChecker.setBookingTimeStatus(booking);
         bookingRepository.save(booking);
         item.getBookings().add(booking);
         return BookingMapper.mapToBookingResponse(booking);
@@ -93,14 +93,14 @@ public class BookingServiceImpl implements BookingService {
                 || state.equalsIgnoreCase("rejected")
                 || state.equalsIgnoreCase("approved")) {
             List<Booking> allByBookerIdAndStatus = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStatus.valueOf(state));
-            allByBookerIdAndStatus.forEach(BookingStatusChecker::getBookingTimeStatus);
+            allByBookerIdAndStatus.forEach(BookingStatusChecker::setBookingTimeStatus);
             return allByBookerIdAndStatus.stream()
                     .map(BookingMapper::mapToBookingResponse)
                     .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                     .collect(Collectors.toList());
         }
         List<Booking> bookingsByBookerId = bookingRepository.findAllByBookerId(bookerId);
-        bookingsByBookerId.forEach(BookingStatusChecker::getBookingTimeStatus);
+        bookingsByBookerId.forEach(BookingStatusChecker::setBookingTimeStatus);
         if (state.equalsIgnoreCase("future")) {
             return bookingsByBookerId.stream()
                     .filter(booking -> booking.getTimeStatus().equals(BookingStatus.FUTURE))
@@ -157,14 +157,14 @@ public class BookingServiceImpl implements BookingService {
         }
         if (state.equalsIgnoreCase("waiting") || state.equalsIgnoreCase("rejected")) {
             List<Booking> allByOwnerIdAndStatusIdAndStatus = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStatus.valueOf(state));
-            allByOwnerIdAndStatusIdAndStatus.forEach(BookingStatusChecker::getBookingTimeStatus);
+            allByOwnerIdAndStatusIdAndStatus.forEach(BookingStatusChecker::setBookingTimeStatus);
             return allByOwnerIdAndStatusIdAndStatus.stream()
                     .map(BookingMapper::mapToBookingResponse)
                     .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                     .collect(Collectors.toList());
         }
         List<Booking> bookingsByOwnerId = bookingRepository.findAllByOwnerId(ownerId);
-        bookingsByOwnerId.forEach(BookingStatusChecker::getBookingTimeStatus);
+        bookingsByOwnerId.forEach(BookingStatusChecker::setBookingTimeStatus);
         if (state.equalsIgnoreCase("future")) {
             return bookingsByOwnerId.stream()
                     .filter(booking -> booking.getTimeStatus().equals(BookingStatus.FUTURE))

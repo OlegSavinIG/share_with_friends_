@@ -32,7 +32,7 @@ public class ItemMapper {
 
     public static ItemDto mapToItemDtoWithBooking(Item item) {
         List<BookingResponseWithItem> bookingResponses = item.getBookings().stream()
-                .peek(BookingStatusChecker::getBookingTimeStatus)
+                .peek(BookingStatusChecker::setBookingTimeStatus)
                 .filter(booking -> !booking.getStatus().equals(BookingStatus.REJECTED))
                 .map(BookingMapper::mapToBookingResponseWithItem)
                 .sorted(Comparator.comparing(BookingResponseWithItem::getStart))

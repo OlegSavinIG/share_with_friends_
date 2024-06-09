@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.memory;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.dto.UserDto;

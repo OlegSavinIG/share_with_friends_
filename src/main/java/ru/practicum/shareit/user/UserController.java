@@ -12,7 +12,7 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController extends BaseController<UserDto, Long> {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @Override
     protected UserDto createEntity(UserDto userDto, Long userId) {
@@ -20,7 +20,7 @@ public class UserController extends BaseController<UserDto, Long> {
     }
 
     @Override
-    protected UserDto getEntityById(Long id) {
+    protected UserDto getEntityById(Long id, Long userId) {
         return userService.getUserById(id);
     }
 
@@ -30,8 +30,8 @@ public class UserController extends BaseController<UserDto, Long> {
     }
 
     @Override
-    protected boolean deleteEntity(Long id) {
-        return userService.deleteUserById(id);
+    protected void deleteEntity(Long id) {
+        userService.deleteUserById(id);
     }
 
     @Override

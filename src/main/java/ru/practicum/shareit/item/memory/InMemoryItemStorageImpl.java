@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.memory;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -46,8 +46,8 @@ public class InMemoryItemStorageImpl implements ItemStorage {
 
 
     @Override
-    public boolean deleteItemById(Long id) {
-        return items.remove(id) != null;
+    public void deleteItemById(Long id) {
+        items.remove(id);
     }
 
     @Override

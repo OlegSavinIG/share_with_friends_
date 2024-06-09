@@ -1,21 +1,24 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.annotation.Update;
+import ru.practicum.shareit.booking.model.BookingResponseWithItem;
+import ru.practicum.shareit.item.comment.CommentDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
-@Builder
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
     @NotNull(groups = {Update.class})
     private long id;
@@ -27,4 +30,7 @@ public class ItemDto {
     @NotNull
     private String description;
     private String review;
+    private BookingResponseWithItem lastBooking;
+    private BookingResponseWithItem nextBooking;
+    private List<CommentDto> comments;
 }

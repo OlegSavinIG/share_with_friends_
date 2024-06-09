@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.memory;
 
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -13,7 +13,7 @@ public interface ItemStorage {
 
     Item updateItem(ItemDto item);
 
-    boolean deleteItemById(Long id);
+    void deleteItemById(Long id);
 
     List<Item> getAllItems(List<Long> itemIds);
 

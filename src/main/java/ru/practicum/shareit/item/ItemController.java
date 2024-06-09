@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.base.BaseController;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,27 +29,28 @@ public class ItemController extends BaseController<ItemDto, Long> {
     }
 
     @Override
-    protected ItemDto getEntityById(Long id) {
-        return itemService.getItemById(id);
+    protected ItemDto getEntityById(Long id, Long userId) {
+        return itemService.getItemById(id, userId);
     }
 
     @Override
-    protected ItemDto updateEntity(ItemDto itemDto, Long id, Long userId) {
+    protected ItemDto updateEntity(ItemDto itemDto, Long itemId, Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.updateItem(itemDto, id, userId);
+        return itemService.updateItem(itemDto, itemId, userId);
     }
 
     @Override
-    protected boolean deleteEntity(Long id) {
-        return itemService.deleteItemById(id);
+    protected void deleteEntity(Long id) {
+        itemService.deleteItemById(id);
     }
 
     @Override
     protected List<ItemDto> getAllEntities(Long userId) {
-        return itemService.getAllItems(userId);
+        return itemService.getAllItemsByUserId(userId);
     }
+
 
     @GetMapping("/search")
     public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
@@ -59,5 +62,12 @@ public class ItemController extends BaseController<ItemDto, Long> {
             return Collections.emptyList();
         }
         return itemService.searchByNameOrDescription(text, userId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    private CommentDto createComment(@PathVariable Long itemId,
+                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                     @Valid @RequestBody CommentDto commentDto) {
+        return itemService.createComment(itemId, userId, commentDto);
     }
 }

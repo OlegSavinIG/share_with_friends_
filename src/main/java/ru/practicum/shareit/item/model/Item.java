@@ -1,22 +1,35 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.user.model.User;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
 @Builder
-@AllArgsConstructor
+@Entity
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "items", schema = "public")
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Long ownerId;
     private String description;
     private Boolean available;
-    private String review;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private User user;
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private final List<Booking> bookings = new ArrayList<>(); //= new TreeSet<>(Comparator.comparing(Booking::getEnd));
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private final List<Comment> comments = new ArrayList<>();
 }

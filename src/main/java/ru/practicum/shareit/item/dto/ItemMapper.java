@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,17 +36,15 @@ public class ItemMapper {
                 .peek(BookingStatusChecker::setBookingTimeStatus)
                 .filter(booking -> !booking.getStatus().equals(BookingStatus.REJECTED))
                 .map(BookingMapper::mapToBookingResponseWithItem)
-                .sorted(Comparator.comparing(BookingResponseWithItem::getStart))
-                .collect(Collectors.toList());
-        List<BookingResponseWithItem> lastBookings = bookingResponses.stream()
-                .filter(bookingResponseWithItem -> bookingResponseWithItem.getStart().isBefore(LocalDateTime.now()))
-                .sorted(Comparator.comparing(BookingResponseWithItem::getEnd).reversed())
                 .collect(Collectors.toList());
 
-        List<BookingResponseWithItem> nextBookings = bookingResponses.stream()
+        Optional<BookingResponseWithItem> lastBooking = bookingResponses.stream()
+                .filter(bookingResponseWithItem -> bookingResponseWithItem.getStart().isBefore(LocalDateTime.now()))
+                .max(Comparator.comparing(BookingResponseWithItem::getStart));
+
+        Optional<BookingResponseWithItem> nextBooking = bookingResponses.stream()
                 .filter(bookingResponseWithItem -> bookingResponseWithItem.getStart().isAfter(LocalDateTime.now()))
-                .sorted(Comparator.comparing(BookingResponseWithItem::getStart))
-                .collect(Collectors.toList());
+                .min(Comparator.comparing(BookingResponseWithItem::getStart));
 
         List<Comment> comments = item.getComments();
 
@@ -54,10 +53,11 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable());
-        if (!lastBookings.isEmpty()) {
-            itemDtoBuilder.lastBooking(lastBookings.get(0));
-            if (!nextBookings.isEmpty()) {
-                itemDtoBuilder.nextBooking(nextBookings.get(0));
+
+        if (lastBooking.isPresent()) {
+            itemDtoBuilder.lastBooking(lastBooking.get());
+            if (nextBooking.isPresent()) {
+                itemDtoBuilder.nextBooking(nextBooking.get());
             }
         }
         if (!comments.isEmpty()) {

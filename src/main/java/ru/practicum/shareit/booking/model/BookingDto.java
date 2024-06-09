@@ -16,12 +16,7 @@ public class BookingDto {
     @NotNull(groups = {Update.class})
     private Long id;
     @NotNull
-
     private Long itemId;
-    //    private Item item;
-//    private String itemName;
-//    private Long bookerId;
-//    private User booker;
     @NotNull
     private LocalDateTime start;
     @NotNull

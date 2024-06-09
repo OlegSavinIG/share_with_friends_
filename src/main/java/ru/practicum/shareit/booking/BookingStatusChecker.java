@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingStatusChecker {
     public static void setBookingTimeStatus(Booking booking) {
-//        if (booking.getStatus().equals(BookingStatus.WAITING)) {
-//           booking.setStatus(BookingStatus.WAITING);
-//        }
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime start = booking.getStart();
         LocalDateTime end = booking.getEnd();

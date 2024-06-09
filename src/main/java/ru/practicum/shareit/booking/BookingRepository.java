@@ -13,6 +13,27 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
+
+    boolean existsByItemIdAndOwnerId(Long itemId, Long ownerId);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b " +
+            "WHERE b.item.id = :itemId AND b.booker.id = :bookerId " +
+            "AND b.status NOT IN ('REJECTED', 'PAST', 'FUTURE')")
+    boolean existsByItemIdAndBookerIdExcludingRejectedAndPast(@Param("itemId") Long itemId, @Param("bookerId") Long bookerId);
+
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND (b.timeStatus = 'PAST' OR b.timeStatus = 'CURRENT')")
+    boolean existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(@Param("bookerId") Long bookerId,
+                                                                @Param("itemId") Long itemId);
+
+
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId ORDER BY b.start DESC")
+    List<Booking> findAllByBookerIdOrderByStartDesc(@Param("bookerId") Long bookerId);
+
+    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId ORDER BY b.start DESC")
+    List<Booking> findAllByOwnerIdOrderByStartDesc(@Param("ownerId") Long ownerId);
+
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND (:status IS NULL OR b.status = :status)")
     List<Booking> findAllByBookerIdAndStatus(@Param("bookerId") Long bookerId, @Param("status") BookingStatus status);
 
@@ -40,13 +61,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByOwnerIdExcludingRejected(@Param("ownerId") Long ownerId);
 
     boolean existsByItemIdAndBookerId(Long itemId, Long bookerId);
-
-    boolean existsByItemIdAndOwnerId(Long itemId, Long ownerId);
-
-    @Query("SELECT COUNT(b) > 0 FROM Booking b " +
-            "WHERE b.item.id = :itemId AND b.booker.id = :bookerId " +
-            "AND b.status NOT IN ('REJECTED', 'PAST', 'FUTURE')")
-    boolean existsByItemIdAndBookerIdExcludingRejectedAndPast(@Param("itemId") Long itemId, @Param("bookerId") Long bookerId);
 
     List<Booking> findAllByItemIdOrderByStartDesc(Long id);
 
@@ -95,10 +109,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     boolean existsByBookerIdAndItemIdAndTimeStatusFuture(@Param("bookerId") Long bookerId,
                                                          @Param("itemId") Long itemId);
 
-    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.booker.id = :bookerId AND b.item.id = :itemId AND (b.timeStatus = 'PAST' OR b.timeStatus = 'CURRENT')")
-    boolean existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(@Param("bookerId") Long bookerId,
-                                                                @Param("itemId") Long itemId);
-
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId AND b.timeStatus = :timeStatus")
     List<Booking> findByBookerIdAndTimeStatus(@Param("bookerId") Long bookerId,
                                               @Param("timeStatus") BookingStatus timeStatus);
@@ -107,11 +117,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByOwnerIdAndTimeStatus(@Param("ownerId") Long ownerId,
                                              @Param("timeStatus") BookingStatus timeStatus);
 
-    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId ORDER BY b.start DESC")
-    List<Booking> findAllByBookerIdOrderByStartDesc(@Param("bookerId") Long bookerId);
 
-    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId ORDER BY b.start DESC")
-    List<Booking> findAllByOwnerIdOrderByStartDesc(@Param("ownerId") Long ownerId);
 }
 
 

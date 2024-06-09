@@ -16,13 +16,14 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Comparator;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -70,23 +71,20 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllItemsByUserId(Long userId) {
         log.info("Запрос всех предметов для пользователя с id {}", userId);
         validateUserExistence(userId);
-        List<Item> items = itemRepository.findAllByUserId(userId);
+        List<Item> items = itemRepository.findAllByUserIdOrderByBookingStartDesc(userId);
         log.info("Найдено {} предметов для пользователя с id {}", items.size(), userId);
         return items.stream()
                 .map(ItemMapper::mapToItemDtoWithBooking)
-                .sorted(Comparator.comparing(
-                        itemDto -> itemDto.getLastBooking() != null ? itemDto.getLastBooking().getStart() : null,
-                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchByNameOrDescription(String text, Long userId) {
-        log.info("Поиск предметов по тексту '{}'", text);
+    public List<ItemDto> searchByNameOrDescription(String nameOrDescription, Long userId) {
+        log.info("Поиск предметов по тексту '{}'", nameOrDescription);
         validateUserExistence(userId);
         List<Item> items = itemRepository
-                .findByNameContainingIgnoreCaseAndAvailableIsTrueOrDescriptionContainingIgnoreCaseAndAvailableIsTrue(text, text);
-        log.info("Найдено {} предметов по запросу '{}'", items.size(), text);
+                .findByNameOrDescriptionContainingIgnoreCaseAndAvailable(nameOrDescription);
+        log.info("Найдено {} предметов по запросу '{}'", items.size(), nameOrDescription);
         return items.stream()
                 .map(ItemMapper::mapItemToItemDto)
                 .collect(Collectors.toList());
@@ -109,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
     private void validateUserExistence(Long userId) {
         log.info("Проверка существования пользователя с id {}", userId);
         if (!userRepository.existsById(userId)) {
-            log.warn("Пользователь с id {} не существует", userId);
+            log.info("Пользователь с id {} не существует", userId);
             throw new NotExistException(String.format("Пользователь не существует с таким id %d", userId));
         }
     }
@@ -117,7 +115,7 @@ public class ItemServiceImpl implements ItemService {
     private void validateItemExistence(Long itemId) {
         log.info("Проверка существования предмета с id {}", itemId);
         if (!itemRepository.existsById(itemId)) {
-            log.warn("Предмет с id {} не существует", itemId);
+            log.info("Предмет с id {} не существует", itemId);
             throw new NotExistException(String.format("Предмет не существует с таким id %d", itemId));
         }
     }
@@ -126,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Получение пользователя с id {}", userId);
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.warn("Пользователь с id {} не найден", userId);
+                    log.info("Пользователь с id {} не найден", userId);
                     return new NotExistException(String.format("Пользователь не существует с таким id %d", userId));
                 });
     }
@@ -135,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Получение предмета с id {}", itemId);
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> {
-                    log.warn("Предмет с id {} не найден", itemId);
+                    log.info("Предмет с id {} не найден", itemId);
                     return new NotExistException(String.format("Предмет с этим id %d не существует", itemId));
                 });
     }
@@ -143,15 +141,15 @@ public class ItemServiceImpl implements ItemService {
     private void updateItemFields(ItemDto itemDto, Item existItem) {
         log.info("Обновление полей предмета с id {}", existItem.getId());
         if (itemDto.getName() != null) {
-            log.debug("Обновление имени предмета: {}", itemDto.getName());
+            log.info("Обновление имени предмета: {}", itemDto.getName());
             existItem.setName(itemDto.getName());
         }
         if (itemDto.getDescription() != null) {
-            log.debug("Обновление описания предмета: {}", itemDto.getDescription());
+            log.info("Обновление описания предмета: {}", itemDto.getDescription());
             existItem.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
-            log.debug("Обновление доступности предмета: {}", itemDto.getAvailable());
+            log.info("Обновление доступности предмета: {}", itemDto.getAvailable());
             existItem.setAvailable(itemDto.getAvailable());
         }
     }
@@ -159,11 +157,11 @@ public class ItemServiceImpl implements ItemService {
     private void validateCommentEligibility(Long itemId, Long userId) {
         log.info("Проверка возможности оставления комментария для предмета с id {} пользователем с id {}", itemId, userId);
         if (!bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(itemId, userId)) {
-            log.warn("Пользователь с id {} не может оставить комментарий для предмета с id {}", userId, itemId);
+            log.info("Пользователь с id {} не может оставить комментарий для предмета с id {}", userId, itemId);
             throw new DataNotFoundException("Вы не можете оставлять комментарии");
         }
         if (!bookingRepository.existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(userId, itemId)) {
-            log.warn("Пользователь с id {} не имеет права оставлять комментарии для предмета с id {}", userId, itemId);
+            log.info("Пользователь с id {} не имеет права оставлять комментарии для предмета с id {}", userId, itemId);
             throw new DataNotFoundException("Вы не можете оставить комментарий");
         }
     }

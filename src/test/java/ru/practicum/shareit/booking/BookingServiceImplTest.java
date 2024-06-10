@@ -13,24 +13,25 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingDto;
 import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceImplTest {
-
-    @InjectMocks
-    private BookingServiceImpl bookingService;
 
     @Mock
     private BookingRepository bookingRepository;
@@ -41,101 +42,150 @@ public class BookingServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    private User user;
+    @InjectMocks
+    private BookingServiceImpl bookingService;
+
+    private BookingDto bookingDto;
     private User owner;
+    private User booker;
     private Item item;
     private Booking booking;
-    private BookingDto bookingDto;
 
     @BeforeEach
-    public void setup() {
-        user = new User();
-        user.setId(1L);
-        user.setName("Test User");
+    void setUp() {
+        owner = User.builder()
+                .id(1L)
+                .name("Test User")
+                .email("testuser@example.com")
+                .build();
+        booker = User.builder()
+                .id(2L)
+                .name("Test User2")
+                .email("testuser2@example.com")
+                .build();
 
-        owner = new User();
-        owner.setId(2L);
-        owner.setName("Owner");
+        item = Item.builder()
+                .id(1L)
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .user(owner)
+                .build();
 
-        item = new Item();
-        item.setId(1L);
-        item.setName("Test Item");
-        item.setUser(owner);
+        bookingDto = BookingDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
 
-        bookingDto = new BookingDto();
-        bookingDto.setItemId(1L);
-        bookingDto.setStart(LocalDateTime.now().plusDays(1));
-        bookingDto.setEnd(LocalDateTime.now().plusDays(2));
-
-        booking = new Booking();
-        booking.setId(1L);
-        booking.setItem(item);
-        booking.setBooker(user);
-        booking.setOwner(owner);
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setStatus(BookingStatus.WAITING);
+        booking = Booking.builder()
+                .id(1L)
+                .booker(booker)
+                .owner(owner)
+                .item(item)
+                .start(bookingDto.getStart())
+                .end(bookingDto.getEnd())
+                .status(BookingStatus.WAITING)
+                .build();
     }
 
     @Test
-    public void testCreateBookingSuccess() {
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(itemRepository.existsById(item.getId())).thenReturn(true);
-        when(itemRepository.findAvailableById(item.getId())).thenReturn(true);
+    void createBookingValid() {
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(booker));
+        when(itemRepository.existsById(anyLong())).thenReturn(true);
+        when(itemRepository.findAvailableById(anyLong())).thenReturn(true);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        BookingResponse response = bookingService.createBooking(user.getId(), bookingDto);
+        BookingResponse response = bookingService.createBooking(2L, bookingDto);
 
         assertNotNull(response);
-        verify(bookingRepository, times(1)).save(any(Booking.class));
     }
 
     @Test
-    public void testApproveBookingSuccess() {
-        when(userRepository.existsById(owner.getId())).thenReturn(true);
-        when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
-        when(bookingRepository.existsById(booking.getId())).thenReturn(true);
+    void createBookingUserNotExist() {
+        assertThrows(NotExistException.class, () -> bookingService.createBooking(1L, bookingDto));
+    }
 
-        BookingResponse response = bookingService.approveBooking(booking.getId(), "true", owner.getId());
+    @Test
+    void createBookingItemNotExist() {
+        when(itemRepository.existsById(anyLong())).thenReturn(false);
+
+        assertThrows(NotExistException.class, () -> bookingService.createBooking(1L, bookingDto));
+    }
+
+    @Test
+    void createBookingOwnerItem() {
+        assertThrows(NotExistException.class, () -> bookingService.createBooking(1L, bookingDto));
+    }
+
+    @Test
+    void approveBookingValid() {
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
+        when(bookingRepository.existsById(anyLong())).thenReturn(true);
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+
+        BookingResponse response = bookingService.approveBooking(1L, "true", 1L);
 
         assertNotNull(response);
         assertEquals(BookingStatus.APPROVED, booking.getStatus());
-        verify(bookingRepository, times(1)).save(any(Booking.class));
     }
 
     @Test
-    public void testFindByIdSuccess() {
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+    void approveBookingBookingNotExist() {
+        assertThrows(NotExistException.class, () -> bookingService.approveBooking(1L, "true", 1L));
+    }
 
-        BookingResponse response = bookingService.findById(booking.getId(), user.getId());
+    @Test
+    void approveBookingUserNotExist() {
+        when(userRepository.existsById(anyLong())).thenReturn(false);
+
+        assertThrows(NotExistException.class, () -> bookingService.approveBooking(1L, "true", 1L));
+    }
+
+    @Test
+    void findByIdValid() {
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+
+        BookingResponse response = bookingService.findById(1L, 1L);
 
         assertNotNull(response);
         assertEquals(booking.getId(), response.getId());
     }
 
     @Test
-    public void testGetBookingsByBookerSuccess() {
-        Page<Booking> bookingsPage = new PageImpl<>(Collections.singletonList(booking));
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        when(bookingRepository.findAllByBookerIdOrderByStartDesc(eq(user.getId()), any(PageRequest.class)))
-                .thenReturn(bookingsPage);
+    void findByIdBookingNotExist() {
+        assertThrows(NotExistException.class, () -> bookingService.findById(1L, 1L));
+    }
 
-        List<BookingResponse> responses = bookingService.getBookingsByBooker(user.getId(), "ALL", 0, 10);
+    @Test
+    void findByIdUserNotExist() {
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(NotExistException.class, () -> bookingService.findById(1L, 1L));
+    }
+
+    @Test
+    void getBookingsByBookerValid() {
+        Page<Booking> bookings = new PageImpl<>(Collections.singletonList(booking));
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), any(PageRequest.class))).thenReturn(bookings);
+
+        List<BookingResponse> responses = bookingService.getBookingsByBooker(1L, "ALL", 0, 10);
 
         assertFalse(responses.isEmpty());
         assertEquals(booking.getId(), responses.get(0).getId());
     }
 
     @Test
-    public void testGetBookingsByOwnerSuccess() {
-        Page<Booking> bookingsPage = new PageImpl<>(Collections.singletonList(booking));
-        when(userRepository.existsById(owner.getId())).thenReturn(true);
-        when(bookingRepository.findAllByOwnerIdOrderByStartDesc(eq(owner.getId()), any(PageRequest.class)))
-                .thenReturn(bookingsPage);
+    void getBookingsByOwnerValid() {
+        Page<Booking> bookings = new PageImpl<>(Collections.singletonList(booking));
+        when(userRepository.existsById(anyLong())).thenReturn(true);
+        when(bookingRepository.findAllByOwnerIdOrderByStartDesc(anyLong(), any(PageRequest.class))).thenReturn(bookings);
 
-        List<BookingResponse> responses = bookingService.getBookingsByOwner(owner.getId(), "ALL", 0, 10);
+        List<BookingResponse> responses = bookingService.getBookingsByOwner(1L, "ALL", 0, 10);
 
         assertFalse(responses.isEmpty());
         assertEquals(booking.getId(), responses.get(0).getId());

@@ -82,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> getBookingsByBooker(Long userId, String state, int from, int size) {
         log.info("Запрос всех бронирований для пользователя с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageable);
         return filterBookingsByState(bookings, state);
     }
@@ -91,7 +91,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> getBookingsByOwner(Long userId, String state, int from, int size) {
         log.info("Запрос всех бронирований для владельца с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId, pageable);
         return filterBookingsByState(bookings, state);
     }
@@ -100,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> allBookingsByBooker(Long bookerId, int from, int size) {
         log.info("Запрос всех бронирований для пользователя с id {}", bookerId);
         verifyUserExists(bookerId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
         return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
@@ -112,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> allBookingsByOwner(Long userId, int from, int size) {
         log.info("Запрос всех бронирований для владельца с id {}", userId);
         verifyUserExists(userId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId, pageable);
         return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)

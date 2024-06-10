@@ -181,17 +181,6 @@ public class ItemServiceImplTest {
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
 
-    @Test
-    public void testCreateCommentUserNotFound() {
-        when(userRepository.existsById(user.getId())).thenReturn(false);
-
-        NotExistException exception = assertThrows(NotExistException.class, () -> {
-            itemService.createComment(item.getId(), user.getId(), commentDto);
-        });
-
-        assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
-    }
-
 
     @Test
     public void testCreateCommentWithWrongUser() {

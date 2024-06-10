@@ -57,9 +57,9 @@ public class ItemMapper {
 
         if (lastBooking.isPresent()) {
             itemDtoBuilder.lastBooking(lastBooking.get());
-            if (nextBooking.isPresent()) {
-                itemDtoBuilder.nextBooking(nextBooking.get());
-            }
+        }
+        if (nextBooking.isPresent()) {
+            itemDtoBuilder.nextBooking(nextBooking.get());
         }
         if (!comments.isEmpty()) {
             List<CommentDto> commentDtos = comments.stream()

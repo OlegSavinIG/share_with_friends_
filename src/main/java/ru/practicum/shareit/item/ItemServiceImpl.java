@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllItemsByUserId(Long userId, int from, int size) {
         log.info("Запрос всех предметов для пользователя с id {}", userId);
         validateUserExistence(userId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Item> items = itemRepository.findAllByUserIdOrderByBookingStartDesc(userId, pageable);
         return items.stream()
                 .map(ItemMapper::mapToItemDtoWithBooking)
@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchByNameOrDescription(String nameOrDescription, Long userId, int from, int size) {
         log.info("Поиск предметов по тексту '{}'", nameOrDescription);
         validateUserExistence(userId);
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Page<Item> items = itemRepository
                 .findByNameOrDescriptionContainingIgnoreCaseAndAvailable(nameOrDescription, pageable);
         return items.stream()

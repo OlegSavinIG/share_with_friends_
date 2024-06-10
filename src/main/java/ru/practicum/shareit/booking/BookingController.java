@@ -55,7 +55,7 @@ public class BookingController {
             throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
         }
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByBooker(bookerId,  from,  size);
+            return bookingService.allBookingsByBooker(bookerId, from, size);
         }
         if (state != null) {
             boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
@@ -80,7 +80,7 @@ public class BookingController {
             throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
         }
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByOwner(ownerId,  from,  size);
+            return bookingService.allBookingsByOwner(ownerId, from, size);
         }
         boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
                 .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));

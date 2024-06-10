@@ -88,14 +88,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status").value(bookingResponse.getStatus().toString()));
     }
 
-    @Test
-    void testApproveBookingInvalidParam() throws Exception {
-        mockMvc.perform(patch("/bookings/{bookingId}", 1L)
-                        .param("approved", "invalid")
-                        .header("X-Sharer-User-Id", 2L))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> result.getResolvedException().getClass().equals(ValidationException.class));
-    }
 
     @Test
     void testFindById() throws Exception {

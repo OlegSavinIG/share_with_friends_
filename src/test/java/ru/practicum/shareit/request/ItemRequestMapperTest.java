@@ -3,10 +3,9 @@ package ru.practicum.shareit.request.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import ru.practicum.shareit.item.dto.ItemDtoWithRequest;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
@@ -59,14 +58,14 @@ public class ItemRequestMapperTest {
                 .created(LocalDateTime.now())
                 .user(user)
                 .build();
-        itemRequest.getItems().addAll(Collections.singletonList(item));
+        itemRequest.getItems().add(item);
 
         itemRequestDto = ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
                 .created(itemRequest.getCreated())
                 .build();
-        itemRequestDto.getItems().addAll(Collections.singletonList(itemDtoWithRequest));
+        itemRequestDto.getItems().add(itemDtoWithRequest);
     }
 
     @Test

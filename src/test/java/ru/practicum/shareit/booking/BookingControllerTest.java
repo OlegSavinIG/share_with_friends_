@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.model.BookingDto;
 import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 

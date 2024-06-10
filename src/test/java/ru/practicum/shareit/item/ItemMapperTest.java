@@ -15,7 +15,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +64,8 @@ public class ItemMapperTest {
                 .author(owner)
                 .build();
 
-        item.getBookings().addAll(Collections.singletonList(booking));
-        item.getComments().addAll(Collections.singletonList(comment));
+        item.getBookings().add(booking);
+        item.getComments().add(comment);
 
         ItemDto itemDto = ItemMapper.mapToItemDtoWithBooking(item);
 

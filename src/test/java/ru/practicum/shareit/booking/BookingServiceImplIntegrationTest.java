@@ -106,4 +106,20 @@ public class BookingServiceImplIntegrationTest {
         assertFalse(bookings.isEmpty());
         assertEquals(2, bookings.size());
     }
+
+    @Test
+    public void testAllBookingsByBooker() {
+        List<BookingResponse> bookings = bookingService.allBookingsByBooker(booker.getId(), 0, 10);
+
+        assertFalse(bookings.isEmpty());
+        assertEquals(2, bookings.size());
+    }
+
+    @Test
+    public void testGetBookingsByOwnerWithState() {
+        List<BookingResponse> bookings = bookingService.getBookingsByOwner(owner.getId(), "CURRENT", 0, 10);
+
+        assertFalse(bookings.isEmpty());
+        assertEquals(1, bookings.size());
+    }
 }

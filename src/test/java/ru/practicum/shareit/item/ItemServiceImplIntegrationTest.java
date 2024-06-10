@@ -40,22 +40,25 @@ public class ItemServiceImplIntegrationTest {
         userRepository.deleteAll();
         itemRepository.deleteAll();
 
-        user = new User();
-        user.setName("Test User");
-        user.setEmail("testuser@example.com");
+        user = User.builder()
+                .name("Test User")
+                .email("testuser@example.com")
+                .build();
         user = userRepository.save(user);
 
-        Item item1 = new Item();
-        item1.setName("Item 1");
-        item1.setDescription("Description 1");
-        item1.setAvailable(true);
-        item1.setUser(user);
+        Item item1 = Item.builder()
+                .name("Item 1")
+                .description("Description 1")
+                .available(true)
+                .user(user)
+                .build();
 
-        Item item2 = new Item();
-        item2.setName("Item 2");
-        item2.setDescription("Description 2");
-        item2.setAvailable(true);
-        item2.setUser(user);
+        Item item2 = Item.builder()
+                .name("Item 2")
+                .description("Description 2")
+                .available(true)
+                .user(user)
+                .build();
 
         itemRepository.save(item1);
         itemRepository.save(item2);
@@ -69,5 +72,21 @@ public class ItemServiceImplIntegrationTest {
         assertEquals(2, items.size());
         assertEquals("Item 1", items.get(0).getName());
         assertEquals("Item 2", items.get(1).getName());
+    }
+
+    @Test
+    public void testSearchByNameOrDescription() {
+        List<ItemDto> items = itemService.searchByNameOrDescription("Item", user.getId(), 0, 10);
+
+        assertFalse(items.isEmpty());
+        assertEquals(2, items.size());
+        assertEquals("Item 1", items.get(0).getName());
+        assertEquals("Item 2", items.get(1).getName());
+
+        items = itemService.searchByNameOrDescription("Description 1", user.getId(), 0, 10);
+
+        assertFalse(items.isEmpty());
+        assertEquals(1, items.size());
+        assertEquals("Item 1", items.get(0).getName());
     }
 }

@@ -3,14 +3,15 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,7 +110,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testGetAllUsersSuccess() {
-        List<User> users = Arrays.asList(user);
+        List<User> users = Collections.singletonList(user);
         when(userRepository.findAll()).thenReturn(users);
 
         List<UserDto> result = userService.getAllUsers();

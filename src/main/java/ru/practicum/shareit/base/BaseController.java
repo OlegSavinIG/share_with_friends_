@@ -40,8 +40,10 @@ public abstract class BaseController<T, D> {
     }
 
     @GetMapping
-    public ResponseEntity<List<T>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId) {
-        List<T> entities = getAllEntities(userId);
+    public ResponseEntity<List<T>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) D userId,
+                                          @RequestParam(defaultValue = "0") int from,
+                                          @RequestParam(defaultValue = "10") int size) {
+        List<T> entities = getAllEntities(userId, from, size);
         return ResponseEntity.ok(entities);
     }
 
@@ -53,5 +55,5 @@ public abstract class BaseController<T, D> {
 
     protected abstract void deleteEntity(D id);
 
-    protected abstract List<T> getAllEntities(D userId);
+    protected abstract List<T> getAllEntities(D userId, int from, int size);
 }

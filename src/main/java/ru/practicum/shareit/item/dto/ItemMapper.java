@@ -28,6 +28,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getRequestId())
                 .build();
     }
 
@@ -78,6 +79,7 @@ public class ItemMapper {
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .user(user)
+                .requestId(itemDto.getRequestId())
                 .build();
     }
 
@@ -101,6 +103,16 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .comments(Collections.emptyList())
+                .build();
+    }
+
+    public static ItemDtoWithRequest mapToItemDtoWithRequest(Item item) {
+        return ItemDtoWithRequest.builder()
+                .id(item.getId())
+                .requestId(item.getRequestId())
+                .description(item.getDescription())
+                .name(item.getName())
+                .available(item.getAvailable())
                 .build();
     }
 }

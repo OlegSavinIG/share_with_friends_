@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
@@ -68,23 +71,23 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsByUserId(Long userId) {
+    public List<ItemDto> getAllItemsByUserId(Long userId, int from, int size) {
         log.info("Запрос всех предметов для пользователя с id {}", userId);
         validateUserExistence(userId);
-        List<Item> items = itemRepository.findAllByUserIdOrderByBookingStartDesc(userId);
-        log.info("Найдено {} предметов для пользователя с id {}", items.size(), userId);
+        Pageable pageable = PageRequest.of(from/size, size);
+        Page<Item> items = itemRepository.findAllByUserIdOrderByBookingStartDesc(userId, pageable);
         return items.stream()
                 .map(ItemMapper::mapToItemDtoWithBooking)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchByNameOrDescription(String nameOrDescription, Long userId) {
+    public List<ItemDto> searchByNameOrDescription(String nameOrDescription, Long userId, int from, int size) {
         log.info("Поиск предметов по тексту '{}'", nameOrDescription);
         validateUserExistence(userId);
-        List<Item> items = itemRepository
-                .findByNameOrDescriptionContainingIgnoreCaseAndAvailable(nameOrDescription);
-        log.info("Найдено {} предметов по запросу '{}'", items.size(), nameOrDescription);
+        Pageable pageable = PageRequest.of(from/size, size);
+        Page<Item> items = itemRepository
+                .findByNameOrDescriptionContainingIgnoreCaseAndAvailable(nameOrDescription, pageable);
         return items.stream()
                 .map(ItemMapper::mapItemToItemDto)
                 .collect(Collectors.toList());

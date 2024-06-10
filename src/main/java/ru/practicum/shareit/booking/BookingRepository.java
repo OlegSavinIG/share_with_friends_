@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +29,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     boolean existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(@Param("bookerId") Long bookerId,
                                                                 @Param("itemId") Long itemId);
 
+
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId ORDER BY b.start DESC")
+    Page<Booking> findAllByBookerIdOrderByStartDesc(@Param("bookerId") Long bookerId, Pageable pageable);
+
+    @Query("SELECT b FROM Booking b WHERE b.owner.id = :ownerId ORDER BY b.start DESC")
+    Page<Booking> findAllByOwnerIdOrderByStartDesc(@Param("ownerId") Long ownerId, Pageable pageable);
 
     @Query("SELECT b FROM Booking b WHERE b.booker.id = :bookerId ORDER BY b.start DESC")
     List<Booking> findAllByBookerIdOrderByStartDesc(@Param("bookerId") Long bookerId);

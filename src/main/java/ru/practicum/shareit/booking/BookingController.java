@@ -44,9 +44,18 @@ public class BookingController {
 
     @GetMapping
     private List<BookingResponse> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
-                                                      @RequestParam(required = false) String state) {
+                                                      @RequestParam(required = false) String state,
+                                                      @RequestParam(defaultValue = "0") Integer from,
+                                                      @RequestParam(defaultValue = "10") Integer size) {
+
+        if (from < 0) {
+            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+        }
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByBooker(bookerId);
+            return bookingService.allBookingsByBooker(bookerId,  from,  size);
         }
         if (state != null) {
             boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
@@ -55,20 +64,29 @@ public class BookingController {
                 throw new UnsupportedStatusException("UNSUPPORTED_STATUS");
             }
         }
-        return bookingService.getBookingsByBooker(bookerId, state);
+        return bookingService.getBookingsByBooker(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     private List<BookingResponse> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
-                                                     @RequestParam(required = false) String state) {
+                                                     @RequestParam(required = false) String state,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(defaultValue = "10") Integer size) {
+
+        if (from < 0) {
+            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+        }
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByOwner(ownerId);
+            return bookingService.allBookingsByOwner(ownerId,  from,  size);
         }
         boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
                 .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
         if (!anyMatchStatus) {
             throw new UnsupportedStatusException("Unknown state: " + state);
         }
-        return bookingService.getBookingsByOwner(ownerId, state);
+        return bookingService.getBookingsByOwner(ownerId, state, from, size);
     }
 }

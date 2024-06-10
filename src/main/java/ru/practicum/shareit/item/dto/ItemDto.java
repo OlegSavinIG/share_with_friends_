@@ -29,6 +29,7 @@ public class ItemDto {
     private Boolean available;
     @NotNull
     private String description;
+    private Long requestId;
     private String review;
     private BookingResponseWithItem lastBooking;
     private BookingResponseWithItem nextBooking;

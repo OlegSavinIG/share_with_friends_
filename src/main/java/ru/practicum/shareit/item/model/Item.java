@@ -28,8 +28,9 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User user;
+    private Long requestId;
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
-    private final List<Booking> bookings = new ArrayList<>(); //= new TreeSet<>(Comparator.comparing(Booking::getEnd));
+    private final List<Booking> bookings = new ArrayList<>();
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private final List<Comment> comments = new ArrayList<>();
 }

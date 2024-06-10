@@ -47,21 +47,36 @@ public class ItemController extends BaseController<ItemDto, Long> {
     }
 
     @Override
-    protected List<ItemDto> getAllEntities(Long userId) {
-        return itemService.getAllItemsByUserId(userId);
+    protected List<ItemDto> getAllEntities(Long userId, int from, int size) {
+        if (from < 0) {
+            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+        }
+        return itemService.getAllItemsByUserId(userId, from, size);
     }
 
 
     @GetMapping("/search")
     public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
-                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                   @RequestParam(defaultValue = "0") Integer from,
+                                                   @RequestParam(defaultValue = "10") Integer size) {
+
+        if (from < 0) {
+            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+        }
         if (userId == null || text == null) {
             throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
         }
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return itemService.searchByNameOrDescription(text, userId);
+        return itemService.searchByNameOrDescription(text, userId, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

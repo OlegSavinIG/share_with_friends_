@@ -35,7 +35,7 @@ public class UserController extends BaseController<UserDto, Long> {
     }
 
     @Override
-    protected List<UserDto> getAllEntities(Long userId) {
+    protected List<UserDto> getAllEntities(Long userId, int from, int size) {
         return userService.getAllUsers();
     }
 }

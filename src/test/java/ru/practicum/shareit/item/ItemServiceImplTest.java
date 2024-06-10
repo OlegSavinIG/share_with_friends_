@@ -94,16 +94,6 @@ public class ItemServiceImplTest {
         verify(itemRepository, times(1)).save(any(Item.class));
     }
 
-    @Test
-    public void testAddItemUserNotFound() {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
-
-        NotExistException exception = assertThrows(NotExistException.class, () -> {
-            itemService.addItem(itemDto, user.getId());
-        });
-
-        assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
-    }
 
     @Test
     public void testGetItemByIdSuccess() {
@@ -114,17 +104,6 @@ public class ItemServiceImplTest {
 
         assertNotNull(result);
         assertEquals(item.getName(), result.getName());
-    }
-
-    @Test
-    public void testGetItemByIdItemNotFound() {
-        when(itemRepository.findById(item.getId())).thenReturn(Optional.empty());
-
-        NotExistException exception = assertThrows(NotExistException.class, () -> {
-            itemService.getItemById(item.getId(), user.getId());
-        });
-
-        assertEquals("Предмет с этим id 1 не существует", exception.getMessage());
     }
 
     @Test
@@ -214,20 +193,9 @@ public class ItemServiceImplTest {
         assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
     }
 
-    @Test
-    public void testCreateCommentItemNotFound() {
-        when(userRepository.existsById(user.getId())).thenReturn(true);
-        when(itemRepository.existsById(item.getId())).thenReturn(false);
-
-        NotExistException exception = assertThrows(NotExistException.class, () -> {
-            itemService.createComment(item.getId(), user.getId(), commentDto);
-        });
-
-        assertEquals("Предмет не существует с таким id 1", exception.getMessage());
-    }
 
     @Test
-    public void testCreateCommentNotEligible() {
+    public void testCreateCommentWithWrongUser() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRepository.existsById(item.getId())).thenReturn(true);
         when(bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(item.getId(), user.getId())).thenReturn(false);

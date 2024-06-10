@@ -37,7 +37,8 @@ public class BookingDtoJsonTest {
 
     @Test
     public void testDeserialize() throws Exception {
-        String content = "{\"id\":1,\"itemId\":2,\"start\":\"2023-06-01T12:00:00\",\"end\":\"2023-06-02T12:00:00\",\"status\":\"APPROVED\"}";
+        String content = "{\"id\":1,\"itemId\":2,\"start\":\"2023-06-01T12:00:00\"" +
+                ",\"end\":\"2023-06-02T12:00:00\",\"status\":\"APPROVED\"}";
 
         BookingDto expectedBookingDto = BookingDto.builder()
                 .id(1L)

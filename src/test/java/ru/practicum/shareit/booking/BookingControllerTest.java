@@ -151,25 +151,6 @@ public class BookingControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-//    @Test
-//    void testAllBookingsByBookerInvalidFromParam() throws Exception {
-//        mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "all")
-//                        .param("from", "-1")
-//                        .param("size", "10"))
-//                .andExpect(status().isBadRequest());
-//    }
-
-//    @Test
-//    void testAllBookingsByBookerInvalidSizeParam() throws Exception {
-//        mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "all")
-//                        .param("from", "0")
-//                        .param("size", "0"))
-//                .andExpect(status().isBadRequest());
-//    }
 
     @Test
     void testAllBookingsByOwnerInvalidState() throws Exception {
@@ -181,23 +162,4 @@ public class BookingControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-//    @Test
-//    void testAllBookingsByOwnerInvalidFromParam() throws Exception {
-//        mockMvc.perform(get("/bookings/owner")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "all")
-//                        .param("from", "-1")
-//                        .param("size", "10"))
-//                .andExpect(status().isBadRequest());
-//    }
-
-//    @Test
-//    void testAllBookingsByOwnerInvalidSizeParam() throws Exception {
-//        mockMvc.perform(get("/bookings/owner")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "all")
-//                        .param("from", "0")
-//                        .param("size", "0"))
-//                .andExpect(status().isBadRequest());
-//    }
 }

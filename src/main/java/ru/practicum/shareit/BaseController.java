@@ -1,4 +1,4 @@
-package ru.practicum.shareit.base;
+package ru.practicum.shareit;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.practicum.shareit.item.dto.ItemDtoWithRequest;
+import ru.practicum.shareit.item.model.ItemDtoWithRequest;
 
 import java.time.LocalDateTime;
 

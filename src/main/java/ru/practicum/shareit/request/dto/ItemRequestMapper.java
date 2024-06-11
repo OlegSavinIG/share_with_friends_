@@ -2,8 +2,8 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.dto.ItemDtoWithRequest;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.ItemDtoWithRequest;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;

@@ -9,6 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.booking.model.BookingResponseWithItem;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.model.ItemDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

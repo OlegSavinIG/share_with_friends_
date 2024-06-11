@@ -3,7 +3,7 @@ package ru.practicum.shareit.request.dto;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.annotation.Update;
-import ru.practicum.shareit.item.dto.ItemDtoWithRequest;
+import ru.practicum.shareit.item.model.ItemDtoWithRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

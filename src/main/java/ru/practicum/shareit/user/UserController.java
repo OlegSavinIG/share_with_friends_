@@ -3,8 +3,8 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.base.BaseController;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.BaseController;
+import ru.practicum.shareit.user.model.UserDto;
 
 import java.util.List;
 

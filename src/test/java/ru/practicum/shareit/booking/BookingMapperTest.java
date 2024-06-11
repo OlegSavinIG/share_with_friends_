@@ -3,9 +3,9 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.model.*;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
+import ru.practicum.shareit.user.model.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;

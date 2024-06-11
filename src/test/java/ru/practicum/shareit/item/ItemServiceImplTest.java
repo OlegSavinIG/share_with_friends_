@@ -93,6 +93,16 @@ public class ItemServiceImplTest {
         verify(itemRepository, times(1)).save(any(Item.class));
     }
 
+    @Test
+    public void testAddItemUserNotFound() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.addItem(itemDto, user.getId());
+        });
+
+        assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
+    }
 
     @Test
     public void testGetItemById() {
@@ -103,6 +113,17 @@ public class ItemServiceImplTest {
 
         assertNotNull(result);
         assertEquals(item.getName(), result.getName());
+    }
+
+    @Test
+    public void testGetItemByIdNotFound() {
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.empty());
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.getItemById(item.getId(), user.getId());
+        });
+
+        assertEquals("Предмет с этим id 1 не существует", exception.getMessage());
     }
 
     @Test
@@ -139,6 +160,17 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    public void testDeleteItemByIdNotFound() {
+        doThrow(new NotExistException("Предмет с этим id 1 не существует")).when(itemRepository).deleteById(item.getId());
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.deleteItemById(item.getId());
+        });
+
+        assertEquals("Предмет с этим id 1 не существует", exception.getMessage());
+    }
+
+    @Test
     public void testGetAllItemsByUserId() {
         Page<Item> itemsPage = new PageImpl<>(Collections.singletonList(item));
         when(userRepository.existsById(user.getId())).thenReturn(true);
@@ -152,6 +184,17 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    public void testGetAllItemsByUserIdUserNotFound() {
+        when(userRepository.existsById(user.getId())).thenReturn(false);
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.getAllItemsByUserId(user.getId(), 0, 10);
+        });
+
+        assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
+    }
+
+    @Test
     public void testSearchByNameOrDescription() {
         Page<Item> itemsPage = new PageImpl<>(Collections.singletonList(item));
         when(userRepository.existsById(user.getId())).thenReturn(true);
@@ -162,6 +205,17 @@ public class ItemServiceImplTest {
 
         assertFalse(result.isEmpty());
         assertEquals(item.getId(), result.get(0).getId());
+    }
+
+    @Test
+    public void testSearchByNameOrDescriptionUserNotFound() {
+        when(userRepository.existsById(user.getId())).thenReturn(false);
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.searchByNameOrDescription("Test", user.getId(), 0, 10);
+        });
+
+        assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
     }
 
     @Test
@@ -192,6 +246,17 @@ public class ItemServiceImplTest {
         assertEquals("Пользователь не существует с таким id 1", exception.getMessage());
     }
 
+    @Test
+    public void testCreateCommentItemNotFound() {
+        when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(itemRepository.existsById(item.getId())).thenReturn(false);
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            itemService.createComment(item.getId(), user.getId(), commentDto);
+        });
+
+        assertEquals("Предмет не существует с таким id 1", exception.getMessage());
+    }
 
     @Test
     public void testCreateCommentWithWrongUser() {
@@ -204,5 +269,19 @@ public class ItemServiceImplTest {
         });
 
         assertEquals("Вы не можете оставлять комментарии", exception.getMessage());
+    }
+
+    @Test
+    public void testCreateCommentWithoutBooking() {
+        when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(itemRepository.existsById(item.getId())).thenReturn(true);
+        when(bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(item.getId(), user.getId())).thenReturn(true);
+        when(bookingRepository.existsByBookerIdAndItemIdAndTimeStatusPastOrCurrent(user.getId(), item.getId())).thenReturn(false);
+
+        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> {
+            itemService.createComment(item.getId(), user.getId(), commentDto);
+        });
+
+        assertEquals("Вы не можете оставить комментарий", exception.getMessage());
     }
 }

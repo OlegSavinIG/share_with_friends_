@@ -43,7 +43,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testAddUserSuccess() {
+    public void testAddUser() {
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         UserDto result = userService.addUser(userDto);
@@ -54,7 +54,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testGetUserByIdSuccess() {
+    public void testGetUserById() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         UserDto result = userService.getUserById(user.getId());
@@ -75,7 +75,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testUpdateUserSuccess() {
+    public void testUpdateUser() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -98,7 +98,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testDeleteUserByIdSuccess() {
+    public void testDeleteUserById() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         doNothing().when(userRepository).deleteById(user.getId());
 
@@ -108,14 +108,24 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testGetAllUsersSuccess() {
-        List<User> users = Collections.singletonList(user);
-        when(userRepository.findAll()).thenReturn(users);
+    public void testDeleteUserByIdNotFound() {
+        when(userRepository.existsById(user.getId())).thenReturn(false);
+
+        NotExistException exception = assertThrows(NotExistException.class, () -> {
+            userService.deleteUserById(user.getId());
+        });
+
+        assertEquals("Не существует пользователь с этим id", exception.getMessage());
+    }
+
+    @Test
+    public void testGetAllUsers() {
+        when(userRepository.findAll()).thenReturn(Collections.singletonList(user));
 
         List<UserDto> result = userService.getAllUsers();
 
+        assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals(users.size(), result.size());
-        assertEquals(users.get(0).getName(), result.get(0).getName());
+        assertEquals(user.getName(), result.get(0).getName());
     }
 }

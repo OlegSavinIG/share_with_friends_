@@ -8,9 +8,9 @@ import org.springframework.boot.test.json.JsonContent;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;

@@ -116,7 +116,7 @@ public class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    public void testGetBookingsByOwnerWithState() {
+    public void testGetBookingsByOwner() {
         List<BookingResponse> bookings = bookingService.getBookingsByOwner(owner.getId(), "CURRENT", 0, 10);
 
         assertFalse(bookings.isEmpty());

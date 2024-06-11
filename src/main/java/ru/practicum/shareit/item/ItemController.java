@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.BaseController;
+import ru.practicum.shareit.annotation.Update;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.model.ItemDto;
@@ -11,59 +13,65 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-public class ItemController extends BaseController<ItemDto, Long> {
+public class ItemController {
     private final ItemService itemService;
 
-    @Override
-    protected ItemDto createEntity(ItemDto itemDto, Long userId) {
+    @PostMapping
+    public ResponseEntity<ItemDto> create(@Valid @RequestBody ItemDto itemDto,
+                                          @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.addItem(itemDto, userId);
+        ItemDto createdEntity = itemService.addItem(itemDto, userId);
+        return ResponseEntity.ok(createdEntity);
     }
 
-    @Override
-    protected ItemDto getEntityById(Long id, Long userId) {
-        return itemService.getItemById(id, userId);
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemDto> getById(@PathVariable Long id,
+                                           @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
+        ItemDto entity = itemService.getItemById(id, userId);
+        return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected ItemDto updateEntity(ItemDto itemDto, Long itemId, Long userId) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<ItemDto> update(@Validated(Update.class) @RequestBody ItemDto itemDto,
+                                          @PathVariable Long id,
+                                          @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.updateItem(itemDto, itemId, userId);
+        ItemDto updatedEntity = itemService.updateItem(itemDto, id, userId);
+        return updatedEntity != null ? ResponseEntity.ok(updatedEntity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected void deleteEntity(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         itemService.deleteItemById(id);
+        return ResponseEntity.ok().build();
     }
 
-    @Override
-    protected List<ItemDto> getAllEntities(Long userId, int from, int size) {
+    @GetMapping
+    public ResponseEntity<List<ItemDto>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId,
+                                                @RequestParam(defaultValue = "0") int from,
+                                                @RequestParam(defaultValue = "10") int size) {
         if (from < 0) {
             throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
         }
         if (size <= 0) {
             throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
         }
-        return itemService.getAllItemsByUserId(userId, from, size);
+        List<ItemDto> entities = itemService.getAllItemsByUserId(userId, from, size);
+        return ResponseEntity.ok(entities);
     }
-
 
     @GetMapping("/search")
     public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                                    @RequestParam(defaultValue = "0") Integer from,
                                                    @RequestParam(defaultValue = "10") Integer size) {
-
         if (from < 0) {
             throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
         }

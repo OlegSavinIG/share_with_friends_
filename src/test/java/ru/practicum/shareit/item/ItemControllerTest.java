@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.model.ItemDto;
 
@@ -69,6 +70,16 @@ public class ItemControllerTest {
     }
 
     @Test
+    void testCreateItemWithoutUserId() throws Exception {
+        given(itemService.addItem(any(ItemDto.class), isNull())).willThrow(new DataNotFoundException("Не передан id пользователя"));
+
+        mockMvc.perform(post("/items")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testGetItemById() throws Exception {
         given(itemService.getItemById(anyLong(), anyLong())).willReturn(itemDto);
 
@@ -80,6 +91,16 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.name").value(itemDto.getName()))
                 .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
                 .andExpect(jsonPath("$.available").value(itemDto.getAvailable()));
+    }
+
+    @Test
+    void testGetItemByIdNotFound() throws Exception {
+        given(itemService.getItemById(anyLong(), anyLong())).willReturn(null);
+
+        mockMvc.perform(get("/items/{id}", 1L)
+                        .contentType("application/json")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -95,6 +116,16 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.name").value(itemDto.getName()))
                 .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
                 .andExpect(jsonPath("$.available").value(itemDto.getAvailable()));
+    }
+
+    @Test
+    void testUpdateItemWithoutUserId() throws Exception {
+        given(itemService.updateItem(any(ItemDto.class), anyLong(), isNull())).willThrow(new DataNotFoundException("Не передан id пользователя"));
+
+        mockMvc.perform(patch("/items/{id}", 1L)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(itemDto)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -140,6 +171,19 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].description").value(itemDto.getDescription()))
                 .andExpect(jsonPath("$[0].available").value(itemDto.getAvailable()));
     }
+
+    @Test
+    void testSearchByNameOrDescriptionEmptyText() throws Exception {
+        mockMvc.perform(get("/items/search")
+                        .contentType("application/json")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("text", "")
+                        .param("from", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
 
     @Test
     void testCreateComment() throws Exception {

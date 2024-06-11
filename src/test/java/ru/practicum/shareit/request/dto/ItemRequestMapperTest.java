@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import ru.practicum.shareit.item.model.ItemDtoWithRequest;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemDtoWithRequest;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 

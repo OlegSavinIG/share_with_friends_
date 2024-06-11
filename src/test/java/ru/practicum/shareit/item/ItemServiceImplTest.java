@@ -15,8 +15,8 @@ import ru.practicum.shareit.exception.NotExistException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRepository;
-import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -82,7 +82,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testAddItemSuccess() {
+    public void testAddItem() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
 
@@ -95,7 +95,7 @@ public class ItemServiceImplTest {
 
 
     @Test
-    public void testGetItemByIdSuccess() {
+    public void testGetItemById() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(bookingRepository.existsByItemIdAndOwnerId(item.getId(), user.getId())).thenReturn(true);
 
@@ -106,7 +106,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testUpdateItemSuccess() {
+    public void testUpdateItem() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
@@ -130,7 +130,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testDeleteItemByIdSuccess() {
+    public void testDeleteItemById() {
         doNothing().when(itemRepository).deleteById(item.getId());
 
         itemService.deleteItemById(item.getId());
@@ -139,7 +139,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testGetAllItemsByUserIdSuccess() {
+    public void testGetAllItemsByUserId() {
         Page<Item> itemsPage = new PageImpl<>(Collections.singletonList(item));
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRepository.findAllByUserIdOrderByBookingStartDesc(eq(user.getId()), any(PageRequest.class)))
@@ -152,7 +152,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testSearchByNameOrDescriptionSuccess() {
+    public void testSearchByNameOrDescription() {
         Page<Item> itemsPage = new PageImpl<>(Collections.singletonList(item));
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailable(anyString(), any(PageRequest.class)))
@@ -165,7 +165,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void testCreateCommentSuccess() {
+    public void testCreateComment() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRepository.existsById(item.getId())).thenReturn(true);
         when(bookingRepository.existsByItemIdAndBookerIdExcludingRejectedAndPast(item.getId(), user.getId())).thenReturn(true);

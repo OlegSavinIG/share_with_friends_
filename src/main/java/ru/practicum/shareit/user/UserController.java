@@ -1,41 +1,49 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.BaseController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.annotation.Update;
 import ru.practicum.shareit.user.model.UserDto;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-public class UserController extends BaseController<UserDto, Long> {
+public class UserController {
     private final UserServiceImpl userService;
 
-    @Override
-    protected UserDto createEntity(UserDto userDto, Long userId) {
-        return userService.addUser(userDto);
+    @PostMapping
+    public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto userDto) {
+        UserDto createdEntity = userService.addUser(userDto);
+        return ResponseEntity.ok(createdEntity);
     }
 
-    @Override
-    protected UserDto getEntityById(Long id, Long userId) {
-        return userService.getUserById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+        UserDto entity = userService.getUserById(id);
+        return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected UserDto updateEntity(UserDto userDto, Long id, Long userId) {
-        return userService.updateUser(userDto, id);
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserDto> update(@Validated(Update.class) @RequestBody UserDto userDto,
+                                          @PathVariable Long id) {
+        UserDto updatedEntity = userService.updateUser(userDto, id);
+        return updatedEntity != null ? ResponseEntity.ok(updatedEntity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected void deleteEntity(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUserById(id);
+        return ResponseEntity.ok().build();
     }
 
-    @Override
-    protected List<UserDto> getAllEntities(Long userId, int from, int size) {
-        return userService.getAllUsers();
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAll() {
+        List<UserDto> entities = userService.getAllUsers();
+        return ResponseEntity.ok(entities);
     }
 }

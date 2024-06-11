@@ -82,7 +82,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void testFindItemRequestsByUserSuccess() {
+    public void testFindItemRequestsByUser() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRequestRepository.findByUserId(user.getId())).thenReturn(Collections.singletonList(itemRequest));
 
@@ -106,7 +106,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void testFindAllItemRequestsSuccess() {
+    public void testFindAllItemRequests() {
         PageRequest pageable = PageRequest.of(0, 10);
         Page<ItemRequest> itemRequestPage = new PageImpl<>(Collections.singletonList(itemRequest));
         when(userRepository.existsById(user.getId())).thenReturn(true);
@@ -133,7 +133,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void testFindByIdSuccess() {
+    public void testFindById() {
         when(userRepository.existsById(user.getId())).thenReturn(true);
         when(itemRequestRepository.findById(itemRequest.getId())).thenReturn(Optional.of(itemRequest));
 

@@ -41,7 +41,7 @@ public class UserControllerTest {
         userDto = UserDto.builder()
                 .id(1L)
                 .name("Test User")
-                .email("testuser@test.com")
+                .email("test@example.com")
                 .build();
     }
 
@@ -71,6 +71,15 @@ public class UserControllerTest {
     }
 
     @Test
+    void testGetUserByIdNotFound() throws Exception {
+        given(userService.getUserById(anyLong())).willReturn(null);
+
+        mockMvc.perform(get("/users/{id}", 1L)
+                        .contentType("application/json"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void testUpdateUser() throws Exception {
         given(userService.updateUser(any(UserDto.class), anyLong())).willReturn(userDto);
 
@@ -81,6 +90,16 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(userDto.getId()))
                 .andExpect(jsonPath("$.name").value(userDto.getName()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()));
+    }
+
+    @Test
+    void testUpdateUserNotFound() throws Exception {
+        given(userService.updateUser(any(UserDto.class), anyLong())).willReturn(null);
+
+        mockMvc.perform(patch("/users/{id}", 1L)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -103,5 +122,46 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].id").value(userDto.getId()))
                 .andExpect(jsonPath("$[0].name").value(userDto.getName()))
                 .andExpect(jsonPath("$[0].email").value(userDto.getEmail()));
+    }
+
+    @Test
+    void testCreateUserInvalidEmail() throws Exception {
+        UserDto invalidUser = UserDto.builder()
+                .id(1L)
+                .name("Test User")
+                .email("invalid-email")
+                .build();
+
+        mockMvc.perform(post("/users")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidUser)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCreateUserMissingName() throws Exception {
+        UserDto invalidUser = UserDto.builder()
+                .id(1L)
+                .email("test@example.com")
+                .build();
+
+        mockMvc.perform(post("/users")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidUser)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdateUserInvalidEmail() throws Exception {
+        UserDto invalidUser = UserDto.builder()
+                .id(1L)
+                .name("Test User")
+                .email("invalid-email")
+                .build();
+
+        mockMvc.perform(patch("/users/{id}", 1L)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidUser)))
+                .andExpect(status().isNotFound());
     }
 }

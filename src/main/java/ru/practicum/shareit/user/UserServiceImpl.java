@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotExistException;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserDto;
 import ru.practicum.shareit.user.model.UserDtoMapper;
-import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
 import java.util.List;

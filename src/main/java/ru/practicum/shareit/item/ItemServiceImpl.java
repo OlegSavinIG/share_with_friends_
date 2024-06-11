@@ -13,9 +13,9 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemDto;
 import ru.practicum.shareit.item.model.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 

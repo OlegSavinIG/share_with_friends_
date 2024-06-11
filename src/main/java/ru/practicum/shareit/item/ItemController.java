@@ -68,29 +68,37 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
-                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                   @RequestParam(defaultValue = "0") Integer from,
-                                                   @RequestParam(defaultValue = "10") Integer size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+    public ResponseEntity<List<ItemDto>> searchByNameOrDescription(@RequestParam String text,
+                                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                                   @RequestParam(defaultValue = "0") Integer from,
+                                                                   @RequestParam(defaultValue = "10") Integer size) {
+        try {
+            if (from < 0) {
+                throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
+            }
+            if (size <= 0) {
+                throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+            }
+            if (userId == null || text == null) {
+                throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
+            }
+            if (text.isBlank()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(itemService.searchByNameOrDescription(text, userId, from, size));
+        } catch (IllegalArgumentException | DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(null);
         }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
-        if (userId == null || text == null) {
-            throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
-        }
-        if (text.isBlank()) {
-            return Collections.emptyList();
-        }
-        return itemService.searchByNameOrDescription(text, userId, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
-    private CommentDto createComment(@PathVariable Long itemId,
-                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                     @Valid @RequestBody CommentDto commentDto) {
-        return itemService.createComment(itemId, userId, commentDto);
+    public ResponseEntity<CommentDto> createComment(@PathVariable Long itemId,
+                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                    @Valid @RequestBody CommentDto commentDto) {
+        try {
+            return ResponseEntity.ok(itemService.createComment(itemId, userId, commentDto));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

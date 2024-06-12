@@ -1,7 +1,11 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.annotation.ValidFrom;
+import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.booking.model.BookingDto;
 import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -18,57 +22,62 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    private BookingResponse createBooking(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
-                                          @Valid @RequestBody BookingDto bookingDto) {
-        return bookingService.createBooking(bookerId, bookingDto);
+    public ResponseEntity<BookingResponse> createBooking(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
+                                                         @Valid @RequestBody BookingDto bookingDto) {
+        return ResponseEntity.ok(bookingService.createBooking(bookerId, bookingDto));
     }
 
     @PatchMapping("/{bookingId}")
-    private BookingResponse approveBooking(@PathVariable Long bookingId,
-                                           @RequestParam String approved,
-                                           @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
-        if (approved.equals("true") || approved.equals("false")) {
-            return bookingService.approveBooking(bookingId, approved, ownerId);
-        } else throw new ValidationException("Неправильно передан параметр approved");
+    public ResponseEntity<BookingResponse> approveBooking(@PathVariable Long bookingId,
+                                                          @RequestParam String approved,
+                                                          @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
+        if (!approved.equals("true") && !approved.equals("false")) {
+            throw new ValidationException("Неправильно передан параметр approved");
+        }
+        return ResponseEntity.ok(bookingService.approveBooking(bookingId, approved, ownerId));
     }
 
     @GetMapping("/{bookingId}")
-    private BookingResponse findById(@PathVariable Long bookingId,
-                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
-        return bookingService.findById(bookingId, userId);
+    public ResponseEntity<BookingResponse> findById(@PathVariable Long bookingId,
+                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+        return ResponseEntity.ok(bookingService.findById(bookingId, userId));
     }
 
     @GetMapping
-    private List<BookingResponse> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
-                                                      @RequestParam(required = false) String state) {
+    public ResponseEntity<List<BookingResponse>> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
+                                                                     @RequestParam(required = false) String state,
+                                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByBooker(bookerId);
+            return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
         }
-        if (state != null) {
-            boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
-                    .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
-            if (!anyMatchStatus) {
-                throw new UnsupportedStatusException("UNSUPPORTED_STATUS");
-            }
+        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
+                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
+        if (!anyMatchStatus) {
+            throw new UnsupportedStatusException("Unsupported status: " + state);
         }
-        return bookingService.getBookingsByBooker(bookerId, state);
+        return ResponseEntity.ok(bookingService.getBookingsByBooker(bookerId, state, from, size));
     }
 
     @GetMapping("/owner")
-    private List<BookingResponse> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
-                                                     @RequestParam(required = false) String state) {
+    public ResponseEntity<List<BookingResponse>> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
+                                                                    @RequestParam(required = false) String state,
+                                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
-            return bookingService.allBookingsByOwner(ownerId);
+            return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
         }
         boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
                 .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
         if (!anyMatchStatus) {
             throw new UnsupportedStatusException("Unknown state: " + state);
         }
-        return bookingService.getBookingsByOwner(ownerId, state);
+        return ResponseEntity.ok(bookingService.getBookingsByOwner(ownerId, state, from, size));
     }
+
 }

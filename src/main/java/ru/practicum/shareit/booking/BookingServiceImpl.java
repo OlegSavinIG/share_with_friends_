@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.BookingException;
@@ -76,26 +79,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> getBookingsByBooker(Long userId, String state) {
+    public List<BookingResponse> getBookingsByBooker(Long userId, String state, int from, int size) {
         log.info("Запрос всех бронирований для пользователя с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
-        List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageable);
         return filterBookingsByState(bookings, state);
     }
 
     @Override
-    public List<BookingResponse> getBookingsByOwner(Long userId, String state) {
+    public List<BookingResponse> getBookingsByOwner(Long userId, String state, int from, int size) {
         log.info("Запрос всех бронирований для владельца с id {} с состоянием {}", userId, state);
         verifyUserExists(userId);
-        List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId, pageable);
         return filterBookingsByState(bookings, state);
     }
 
     @Override
-    public List<BookingResponse> allBookingsByBooker(Long bookerId) {
+    public List<BookingResponse> allBookingsByBooker(Long bookerId, int from, int size) {
         log.info("Запрос всех бронирований для пользователя с id {}", bookerId);
         verifyUserExists(bookerId);
-        List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Booking> bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
         return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
@@ -103,17 +109,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> allBookingsByOwner(Long userId) {
+    public List<BookingResponse> allBookingsByOwner(Long userId, int from, int size) {
         log.info("Запрос всех бронирований для владельца с id {}", userId);
         verifyUserExists(userId);
-        List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByStartDesc(userId, pageable);
         return bookings.stream()
                 .map(BookingMapper::mapToBookingResponse)
                 .sorted(Comparator.comparing(BookingResponse::getStart).reversed())
                 .collect(Collectors.toList());
     }
 
-    private List<BookingResponse> filterBookingsByState(List<Booking> bookings, String state) {
+    private List<BookingResponse> filterBookingsByState(Page<Booking> bookings, String state) {
         log.info("Фильтрация бронирований по состоянию {}", state);
         return bookings.stream()
                 .peek(BookingStatusChecker::setBookingTimeStatus)

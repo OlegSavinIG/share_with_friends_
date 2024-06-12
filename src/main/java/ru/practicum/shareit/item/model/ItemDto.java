@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,6 +29,7 @@ public class ItemDto {
     private Boolean available;
     @NotNull
     private String description;
+    private Long requestId;
     private String review;
     private BookingResponseWithItem lastBooking;
     private BookingResponseWithItem nextBooking;

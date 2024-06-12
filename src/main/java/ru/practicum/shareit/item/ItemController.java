@@ -1,73 +1,87 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.base.BaseController;
+import ru.practicum.shareit.annotation.Update;
+import ru.practicum.shareit.annotation.ValidFrom;
+import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.ItemDto;
 
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-public class ItemController extends BaseController<ItemDto, Long> {
+@Validated
+public class ItemController {
     private final ItemService itemService;
 
-    @Override
-    protected ItemDto createEntity(ItemDto itemDto, Long userId) {
+    @PostMapping
+    public ResponseEntity<ItemDto> create(@Valid @RequestBody ItemDto itemDto,
+                                          @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.addItem(itemDto, userId);
+        ItemDto createdEntity = itemService.addItem(itemDto, userId);
+        return ResponseEntity.ok(createdEntity);
     }
 
-    @Override
-    protected ItemDto getEntityById(Long id, Long userId) {
-        return itemService.getItemById(id, userId);
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemDto> getById(@PathVariable Long id,
+                                           @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
+        ItemDto entity = itemService.getItemById(id, userId);
+        return entity != null ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected ItemDto updateEntity(ItemDto itemDto, Long itemId, Long userId) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<ItemDto> update(@Validated(Update.class) @RequestBody ItemDto itemDto,
+                                          @PathVariable Long id,
+                                          @RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
         }
-        return itemService.updateItem(itemDto, itemId, userId);
+        ItemDto updatedEntity = itemService.updateItem(itemDto, id, userId);
+        return updatedEntity != null ? ResponseEntity.ok(updatedEntity) : ResponseEntity.notFound().build();
     }
 
-    @Override
-    protected void deleteEntity(Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         itemService.deleteItemById(id);
+        return ResponseEntity.ok().build();
     }
 
-    @Override
-    protected List<ItemDto> getAllEntities(Long userId) {
-        return itemService.getAllItemsByUserId(userId);
+    @GetMapping
+    public ResponseEntity<List<ItemDto>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId,
+                                               @ValidFrom @RequestParam(defaultValue = "0") int from,
+                                               @ValidSize @RequestParam(defaultValue = "10") int size) {
+        List<ItemDto> entities = itemService.getAllItemsByUserId(userId, from, size);
+        return ResponseEntity.ok(entities);
     }
-
 
     @GetMapping("/search")
-    public List<ItemDto> searchByNameOrDescription(@RequestParam String text,
-                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
-        if (userId == null || text == null) {
-            throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
-        }
-        if (text.isBlank()) {
-            return Collections.emptyList();
-        }
-        return itemService.searchByNameOrDescription(text, userId);
+    public ResponseEntity<List<ItemDto>> searchByNameOrDescription(@RequestParam String text,
+                                                                   @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                                  @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                  @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+            if (userId == null || text == null) {
+                throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
+            }
+            if (text.isBlank()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            return ResponseEntity.ok(itemService.searchByNameOrDescription(text, userId, from, size));
     }
 
     @PostMapping("/{itemId}/comment")
-    private CommentDto createComment(@PathVariable Long itemId,
-                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                     @Valid @RequestBody CommentDto commentDto) {
-        return itemService.createComment(itemId, userId, commentDto);
+    public ResponseEntity<CommentDto> createComment(@PathVariable Long itemId,
+                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                                    @Valid @RequestBody CommentDto commentDto) {
+            return ResponseEntity.ok(itemService.createComment(itemId, userId, commentDto));
     }
 }

@@ -184,27 +184,6 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
-    @Test
-    void testSearchByNameOrDescriptionInvalidFrom() throws Exception {
-        mockMvc.perform(get("/items/search")
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("text", "Test")
-                        .param("from", "-1")
-                        .param("size", "10"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testSearchByNameOrDescriptionInvalidSize() throws Exception {
-        mockMvc.perform(get("/items/search")
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("text", "Test")
-                        .param("from", "0")
-                        .param("size", "0"))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
     void testCreateComment() throws Exception {

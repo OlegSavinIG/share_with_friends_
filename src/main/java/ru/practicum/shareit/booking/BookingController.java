@@ -2,7 +2,10 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.annotation.ValidFrom;
+import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.booking.model.BookingDto;
 import ru.practicum.shareit.booking.model.BookingResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -19,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private final BookingService bookingService;
 
@@ -47,14 +51,8 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
                                                                      @RequestParam(required = false) String state,
-                                                                     @RequestParam(defaultValue = "0") Integer from,
-                                                                     @RequestParam(defaultValue = "10") Integer size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
+                                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
         }
@@ -69,14 +67,8 @@ public class BookingController {
     @GetMapping("/owner")
     public ResponseEntity<List<BookingResponse>> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
                                                                     @RequestParam(required = false) String state,
-                                                                    @RequestParam(defaultValue = "0") Integer from,
-                                                                    @RequestParam(defaultValue = "10") Integer size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
+                                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
         }

@@ -1,7 +1,10 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.annotation.ValidFrom;
+import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import javax.validation.Valid;
@@ -13,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
@@ -23,21 +27,15 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    private List<ItemRequestDto> findItemRequestsByUser(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestDto> findItemRequestsByUser(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         return itemRequestService.findItemRequestsByUser(userId);
     }
 
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                    @RequestParam(defaultValue = "0") Integer from,
-                                                    @RequestParam(defaultValue = "10") Integer size) {
+                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
 
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
         return itemRequestService.findAllItemRequests(userId, from, size);
     }
 

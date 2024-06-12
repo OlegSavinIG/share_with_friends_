@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.annotation.Update;
+import ru.practicum.shareit.annotation.ValidFrom;
+import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.model.ItemDto;
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -55,14 +58,8 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId,
-                                                @RequestParam(defaultValue = "0") int from,
-                                                @RequestParam(defaultValue = "10") int size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
+                                               @ValidFrom @RequestParam(defaultValue = "0") int from,
+                                               @ValidSize @RequestParam(defaultValue = "10") int size) {
         List<ItemDto> entities = itemService.getAllItemsByUserId(userId, from, size);
         return ResponseEntity.ok(entities);
     }
@@ -70,15 +67,8 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<List<ItemDto>> searchByNameOrDescription(@RequestParam String text,
                                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                                   @RequestParam(defaultValue = "0") Integer from,
-                                                                   @RequestParam(defaultValue = "10") Integer size) {
-        try {
-            if (from < 0) {
-                throw new IllegalArgumentException("Параметр 'from' не может быть отрицательным ");
-            }
-            if (size <= 0) {
-                throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-            }
+                                                                  @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                  @ValidSize @RequestParam(defaultValue = "10") Integer size) {
             if (userId == null || text == null) {
                 throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
             }
@@ -86,19 +76,12 @@ public class ItemController {
                 return ResponseEntity.ok(Collections.emptyList());
             }
             return ResponseEntity.ok(itemService.searchByNameOrDescription(text, userId, from, size));
-        } catch (IllegalArgumentException | DataNotFoundException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<CommentDto> createComment(@PathVariable Long itemId,
                                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                                     @Valid @RequestBody CommentDto commentDto) {
-        try {
             return ResponseEntity.ok(itemService.createComment(itemId, userId, commentDto));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
     }
 }

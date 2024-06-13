@@ -12,7 +12,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ru.practicum.shareit.exception.ValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public String handleValidationException(ValidationException e) {
         return e.getMessage();
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ru.practicum.shareit.exception.BookingException.class)
+    @ExceptionHandler(BookingException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleBookingException(BookingException e) {
         return e.getMessage();

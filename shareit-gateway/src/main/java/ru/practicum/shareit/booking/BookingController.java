@@ -31,7 +31,7 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> approveBooking(@PathVariable Long bookingId,
-                                                 @RequestParam String approved,
+                                                 @RequestParam(name = "approved") String approved,
                                                  @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
         log.info("Approving booking {}, approved={}, ownerId={}", bookingId, approved, ownerId);
         if (!approved.equalsIgnoreCase("true") && !approved.equalsIgnoreCase("false")) {

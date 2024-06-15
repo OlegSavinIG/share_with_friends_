@@ -58,8 +58,8 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<List<ItemDto>> getAll(@RequestHeader(name = "X-Sharer-User-Id", required = false) Long userId,
-                                               @ValidFrom @RequestParam(defaultValue = "0") int from,
-                                               @ValidSize @RequestParam(defaultValue = "10") int size) {
+                                                @ValidFrom @RequestParam(defaultValue = "0") int from,
+                                                @ValidSize @RequestParam(defaultValue = "10") int size) {
         List<ItemDto> entities = itemService.getAllItemsByUserId(userId, from, size);
         return ResponseEntity.ok(entities);
     }
@@ -67,21 +67,21 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<List<ItemDto>> searchByNameOrDescription(@RequestParam String text,
                                                                    @RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                                  @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                                  @ValidSize @RequestParam(defaultValue = "10") Integer size) {
-            if (userId == null || text == null) {
-                throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
-            }
-            if (text.isBlank()) {
-                return ResponseEntity.ok(Collections.emptyList());
-            }
-            return ResponseEntity.ok(itemService.searchByNameOrDescription(text, userId, from, size));
+                                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+        if (userId == null || text == null) {
+            throw new DataNotFoundException("Не передан текст для поиска или неверный пользователь");
+        }
+        if (text.isBlank()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(itemService.searchByNameOrDescription(text, userId, from, size));
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<CommentDto> createComment(@PathVariable Long itemId,
                                                     @RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                                     @Valid @RequestBody CommentDto commentDto) {
-            return ResponseEntity.ok(itemService.createComment(itemId, userId, commentDto));
+        return ResponseEntity.ok(itemService.createComment(itemId, userId, commentDto));
     }
 }

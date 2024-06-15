@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidSize {
     String message() default "Параметр 'size' должен быть больше нуля";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

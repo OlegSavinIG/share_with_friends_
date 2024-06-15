@@ -33,8 +33,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
 
         return itemRequestService.findAllItemRequests(userId, from, size);
     }

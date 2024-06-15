@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidFrom {
     String message() default "Параметр 'from' не может быть отрицательным ";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

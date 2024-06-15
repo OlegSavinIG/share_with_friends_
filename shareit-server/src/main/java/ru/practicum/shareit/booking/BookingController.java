@@ -51,8 +51,8 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
                                                                      @RequestParam(required = false) String state,
-                                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+                                                                     @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                     @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
         }
@@ -67,8 +67,8 @@ public class BookingController {
     @GetMapping("/owner")
     public ResponseEntity<List<BookingResponse>> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
                                                                     @RequestParam(required = false) String state,
-                                                                   @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                                   @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+                                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
+                                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
         }

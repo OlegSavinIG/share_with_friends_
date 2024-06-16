@@ -13,11 +13,9 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
 
-class ItemControllerTest {
+public class ItemControllerTest {
 
     @Mock
     private ItemClient itemClient;
@@ -31,87 +29,93 @@ class ItemControllerTest {
     }
 
     @Test
-    void testCreateItem() {
-        ItemRequestDto itemDto = new ItemRequestDto();
+    void create_Success() {
         Long userId = 1L;
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description");
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.createItem(any(ItemRequestDto.class), anyLong())).thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+        when(itemClient.createItem(any(ItemRequestDto.class), anyLong())).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.create(itemDto, userId);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(itemClient, times(1)).createItem(itemDto, userId);
     }
 
     @Test
-    void testCreateItemWithoutUserId() {
-        ItemRequestDto itemDto = new ItemRequestDto();
+    void create_MissingUserId() {
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description");
 
-        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> {
+        DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
             itemController.create(itemDto, null);
         });
 
-        assertEquals("Не передан id пользователя", exception.getMessage());
+        assertEquals("Не передан id пользователя", thrown.getMessage());
     }
 
+
     @Test
-    void testGetById() {
-        Long itemId = 1L;
+    void getByIdSuccess() {
+        Long id = 1L;
         Long userId = 1L;
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.getItem(anyLong(), anyLong())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        when(itemClient.getItem(anyLong(), anyLong())).thenReturn(expectedResponse);
 
-        ResponseEntity<Object> response = itemController.getById(itemId, userId);
+        ResponseEntity<Object> response = itemController.getById(id, userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(itemClient, times(1)).getItem(itemId, userId);
+        verify(itemClient, times(1)).getItem(id, userId);
     }
 
     @Test
-    void testUpdateItem() {
-        ItemRequestDto itemDto = new ItemRequestDto();
-        Long itemId = 1L;
+    void updateSuccess() {
+        Long id = 1L;
         Long userId = 1L;
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description");
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.updateItem(any(ItemRequestDto.class), anyLong(), anyLong())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        when(itemClient.updateItem(any(ItemRequestDto.class), anyLong(), anyLong())).thenReturn(expectedResponse);
 
-        ResponseEntity<Object> response = itemController.update(itemDto, itemId, userId);
+        ResponseEntity<Object> response = itemController.update(itemDto, id, userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(itemClient, times(1)).updateItem(itemDto, itemId, userId);
+        verify(itemClient, times(1)).updateItem(itemDto, id, userId);
     }
 
     @Test
-    void testUpdateItemWithoutUserId() {
-        ItemRequestDto itemDto = new ItemRequestDto();
-        Long itemId = 1L;
+    void updateMissingUserId() {
+        Long id = 1L;
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description");
 
-        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> {
-            itemController.update(itemDto, itemId, null);
+        DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
+            itemController.update(itemDto, id, null);
         });
 
-        assertEquals("Не передан id пользователя", exception.getMessage());
+        assertEquals("Не передан id пользователя", thrown.getMessage());
     }
 
     @Test
-    void testDeleteItem() {
-        Long itemId = 1L;
+    void deleteSuccess() {
+        Long id = 1L;
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.deleteById(anyLong())).thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+        when(itemClient.deleteById(anyLong())).thenReturn(expectedResponse);
 
-        ResponseEntity<Object> response = itemController.delete(itemId);
+        ResponseEntity<Object> response = itemController.delete(id);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(itemClient, times(1)).deleteById(itemId);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(itemClient, times(1)).deleteById(id);
     }
 
     @Test
-    void testGetAllItems() {
+    void getAllSuccess() {
         Long userId = 1L;
         int from = 0;
         int size = 10;
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.getAllItems(anyLong(), anyInt(), anyInt())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        when(itemClient.getAllItems(anyLong(), anyInt(), anyInt())).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.getAll(userId, from, size);
 
@@ -120,13 +124,14 @@ class ItemControllerTest {
     }
 
     @Test
-    void testSearchByNameOrDescription() {
+    void searchByNameOrDescriptionSuccess() {
         Long userId = 1L;
-        String text = "item";
+        String text = "search text";
         int from = 0;
         int size = 10;
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.searchByNameOrDescription(anyString(), anyLong(), anyInt(), anyInt())).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        when(itemClient.searchByNameOrDescription(anyString(), anyLong(), anyInt(), anyInt())).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.searchByNameOrDescription(userId, text, from, size);
 
@@ -134,31 +139,20 @@ class ItemControllerTest {
         verify(itemClient, times(1)).searchByNameOrDescription(text, userId, from, size);
     }
 
-//    @Test
-//    void testSearchByNameOrDescriptionWithBlankText() {
-//        Long userId = 1L;
-//        String text = "";
-//        int from = 0;
-//        int size = 10;
-//
-//        ResponseEntity<Object> response = itemController.searchByNameOrDescription(userId, text, from, size);
-//
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertTrue(response.getBody() instanceof Collections);
-//        verify(itemClient, never()).searchByNameOrDescription(anyString(), anyLong(), anyInt(), anyInt());
-//    }
 
     @Test
-    void testCreateComment() {
+    void createCommentSuccess() {
         Long itemId = 1L;
         Long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto();
+        CommentRequestDto commentDto = new CommentRequestDto("Nice item!");
+        ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.createComment(anyLong(), anyLong(), any(CommentRequestDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+        when(itemClient.createComment(anyLong(), anyLong(), any(CommentRequestDto.class))).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.createComment(itemId, userId, commentDto);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(itemClient, times(1)).createComment(itemId, userId, commentDto);
     }
+
 }

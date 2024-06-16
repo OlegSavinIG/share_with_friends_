@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.annotation.ValidFrom;
-import ru.practicum.shareit.annotation.ValidSize;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequestMapping(path = "/requests")
@@ -33,8 +33,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> findAllItemRequests(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                      @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                      @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+                                                      @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                      @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Finding all item requests, userId={}, from={}, size={}", userId, from, size);
         return itemRequestClient.findAllItemRequests(userId, from, size);
     }

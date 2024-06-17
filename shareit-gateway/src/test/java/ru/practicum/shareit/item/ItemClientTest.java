@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -51,7 +51,7 @@ public class ItemClientTest {
         ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(Object.class))).thenReturn(response);
 
-        ItemRequestDto itemDto = new ItemRequestDto();
+        ItemDto itemDto = new ItemDto();
         ResponseEntity<Object> result = itemClient.createItem(itemDto, 1L);
 
         assertNotNull(result);
@@ -84,7 +84,7 @@ public class ItemClientTest {
         ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.PATCH), any(HttpEntity.class), eq(Object.class))).thenReturn(response);
 
-        ItemRequestDto itemDto = new ItemRequestDto();
+        ItemDto itemDto = new ItemDto();
         ResponseEntity<Object> result = itemClient.updateItem(itemDto, 1L, 1L);
 
         assertNotNull(result);

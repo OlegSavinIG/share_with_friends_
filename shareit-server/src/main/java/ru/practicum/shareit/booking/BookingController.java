@@ -22,13 +22,12 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
-@Validated
 public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
-                                                         @Valid @RequestBody BookingDto bookingDto) {
+                                                         @RequestBody BookingDto bookingDto) {
         return ResponseEntity.ok(bookingService.createBooking(bookerId, bookingDto));
     }
 
@@ -36,9 +35,9 @@ public class BookingController {
     public ResponseEntity<BookingResponse> approveBooking(@PathVariable Long bookingId,
                                                           @RequestParam String approved,
                                                           @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
-        if (!approved.equals("true") && !approved.equals("false")) {
-            throw new ValidationException("Неправильно передан параметр approved");
-        }
+//        if (!approved.equals("true") && !approved.equals("false")) {
+//            throw new ValidationException("Неправильно передан параметр approved");
+//        }
         return ResponseEntity.ok(bookingService.approveBooking(bookingId, approved, ownerId));
     }
 
@@ -51,32 +50,32 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> allBookingsByBooker(@RequestHeader(name = "X-Sharer-User-Id") Long bookerId,
                                                                      @RequestParam(required = false) String state,
-                                                                     @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                                     @ValidSize @RequestParam(defaultValue = "10") Integer size) {
-        if (state == null || state.equalsIgnoreCase("all")) {
-            return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
-        }
-        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
-                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
-        if (!anyMatchStatus) {
-            throw new UnsupportedStatusException("Unsupported status: " + state);
-        }
+                                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                                     @RequestParam(defaultValue = "10") Integer size) {
+//        if (state == null || state.equalsIgnoreCase("all")) {
+//            return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
+//        }
+//        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
+//                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
+//        if (!anyMatchStatus) {
+//            throw new UnsupportedStatusException("Unsupported status: " + state);
+//        }
         return ResponseEntity.ok(bookingService.getBookingsByBooker(bookerId, state, from, size));
     }
 
     @GetMapping("/owner")
     public ResponseEntity<List<BookingResponse>> allBookingsByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
                                                                     @RequestParam(required = false) String state,
-                                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
-        if (state == null || state.equalsIgnoreCase("all")) {
-            return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
-        }
-        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
-                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
-        if (!anyMatchStatus) {
-            throw new UnsupportedStatusException("Unknown state: " + state);
-        }
+                                                                    @RequestParam(defaultValue = "0") Integer from,
+                                                                    @RequestParam(defaultValue = "10") Integer size) {
+//        if (state == null || state.equalsIgnoreCase("all")) {
+//            return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
+//        }
+//        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
+//                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
+//        if (!anyMatchStatus) {
+//            throw new UnsupportedStatusException("Unknown state: " + state);
+//        }
         return ResponseEntity.ok(bookingService.getBookingsByOwner(ownerId, state, from, size));
     }
 

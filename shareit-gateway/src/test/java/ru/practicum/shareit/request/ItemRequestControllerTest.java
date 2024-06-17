@@ -27,7 +27,7 @@ public class ItemRequestControllerTest {
     @Test
     void createRequest_Success() {
         Long userId = 1L;
-        ItemRequestDto itemRequestDto = new ItemRequestDto("Item request description");
+        ItemRequestDto itemRequestDto = new ItemRequestDto(1l,"Item request description");
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         when(itemRequestClient.createItemRequest(any(ItemRequestDto.class), anyLong())).thenReturn(expectedResponse);

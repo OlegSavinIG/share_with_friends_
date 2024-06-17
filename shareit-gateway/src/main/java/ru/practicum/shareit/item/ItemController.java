@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.annotation.Update;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -24,7 +24,7 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> create(@Valid @RequestBody ItemRequestDto itemDto,
+    public ResponseEntity<Object> create(@Valid @RequestBody ItemDto itemDto,
                                          @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         if (userId == null) {
             throw new DataNotFoundException("Не передан id пользователя");
@@ -41,7 +41,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> update(@Validated(Update.class) @RequestBody ItemRequestDto itemDto,
+    public ResponseEntity<Object> update(@Validated(Update.class) @RequestBody ItemDto itemDto,
                                          @PathVariable Long id,
                                          @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         if (userId == null) {

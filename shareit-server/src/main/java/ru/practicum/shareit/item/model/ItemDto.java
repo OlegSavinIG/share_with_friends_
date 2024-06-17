@@ -20,14 +20,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
-    @NotNull(groups = {Update.class})
     private long id;
-    @NotNull
-    @NotBlank
     private String name;
-    @NotNull
     private Boolean available;
-    @NotNull
     private String description;
     private Long requestId;
     private String review;

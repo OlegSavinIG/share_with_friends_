@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {
-    @NotNull(groups = {Update.class})
-    private Long id;
-    @NotNull
-    @NotBlank
     private String text;
     private String authorName;
     private LocalDateTime created;

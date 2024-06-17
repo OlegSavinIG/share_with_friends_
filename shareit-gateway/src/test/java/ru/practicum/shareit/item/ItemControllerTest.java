@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,12 +29,12 @@ public class ItemControllerTest {
     }
 
     @Test
-    void create_Success() {
+    void createSuccess() {
         Long userId = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description", null);
+        ItemDto itemDto = new ItemDto(1L, "Item Name", true, "Item Description", null);
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.createItem(any(ItemRequestDto.class), anyLong())).thenReturn(expectedResponse);
+        when(itemClient.createItem(any(ItemDto.class), anyLong())).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.create(itemDto, userId);
 
@@ -43,8 +43,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void create_MissingUserId() {
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description", null);
+    void createMissingUserId() {
+        ItemDto itemDto = new ItemDto(1L, "Item Name", true, "Item Description", null);
 
         DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
             itemController.create(itemDto, null);
@@ -72,10 +72,10 @@ public class ItemControllerTest {
     void updateSuccess() {
         Long id = 1L;
         Long userId = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description", null);
+        ItemDto itemDto = new ItemDto(1L, "Updated Item", true, "Updated Description", null);
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        when(itemClient.updateItem(any(ItemRequestDto.class), anyLong(), anyLong())).thenReturn(expectedResponse);
+        when(itemClient.updateItem(any(ItemDto.class), anyLong(), anyLong())).thenReturn(expectedResponse);
 
         ResponseEntity<Object> response = itemController.update(itemDto, id, userId);
 
@@ -86,7 +86,7 @@ public class ItemControllerTest {
     @Test
     void updateMissingUserId() {
         Long id = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description", null);
+        ItemDto itemDto = new ItemDto(1L, "Updated Item", true, "Updated Description", null);
 
         DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
             itemController.update(itemDto, id, null);
@@ -144,7 +144,7 @@ public class ItemControllerTest {
     void createCommentSuccess() {
         Long itemId = 1L;
         Long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto("Nice item!");
+        CommentRequestDto commentDto = new CommentRequestDto(1l,"Nice item!");
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         when(itemClient.createComment(anyLong(), anyLong(), any(CommentRequestDto.class))).thenReturn(expectedResponse);

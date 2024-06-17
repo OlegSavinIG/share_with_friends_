@@ -17,10 +17,6 @@ import java.util.List;
 @Data
 @Builder
 public class ItemRequestDto {
-    @NotNull(groups = {Update.class})
-    private Long id;
-    @NotNull
-    @NotBlank
     private String description;
     private LocalDateTime created;
     private final List<ItemDtoWithRequest> items = new ArrayList<>();

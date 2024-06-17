@@ -16,12 +16,11 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-@Validated
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping
-    public ItemRequestDto createRequest(@Valid @RequestBody ItemRequestDto itemRequestDto,
+    public ItemRequestDto createRequest(@RequestBody ItemRequestDto itemRequestDto,
                                         @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         return itemRequestService.createItemRequest(itemRequestDto, userId);
     }
@@ -33,8 +32,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDto> findAllItemRequests(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                    @ValidFrom @RequestParam(defaultValue = "0") Integer from,
-                                                    @ValidSize @RequestParam(defaultValue = "10") Integer size) {
+                                                    @RequestParam(defaultValue = "0") Integer from,
+                                                    @RequestParam(defaultValue = "10") Integer size) {
 
         return itemRequestService.findAllItemRequests(userId, from, size);
     }

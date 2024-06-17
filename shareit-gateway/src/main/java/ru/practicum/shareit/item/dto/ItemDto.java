@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDto {
+public class ItemDto {
     @NotNull(groups = {Update.class})
     private long id;
     @NotNull

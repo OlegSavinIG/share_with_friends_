@@ -17,7 +17,7 @@ public class UserController {
     private final UserServiceImpl userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> create(@RequestBody UserDto userDto) {
         UserDto createdEntity = userService.addUser(userDto);
         return ResponseEntity.ok(createdEntity);
     }
@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UserDto> update(@Validated(Update.class) @RequestBody UserDto userDto,
+    public ResponseEntity<UserDto> update(@RequestBody UserDto userDto,
                                           @PathVariable Long id) {
         UserDto updatedEntity = userService.updateUser(userDto, id);
         return updatedEntity != null ? ResponseEntity.ok(updatedEntity) : ResponseEntity.notFound().build();

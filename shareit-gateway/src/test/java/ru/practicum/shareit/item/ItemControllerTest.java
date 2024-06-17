@@ -31,7 +31,7 @@ public class ItemControllerTest {
     @Test
     void create_Success() {
         Long userId = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description");
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description", null);
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         when(itemClient.createItem(any(ItemRequestDto.class), anyLong())).thenReturn(expectedResponse);
@@ -44,7 +44,7 @@ public class ItemControllerTest {
 
     @Test
     void create_MissingUserId() {
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description");
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Item Name", true, "Item Description", null);
 
         DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
             itemController.create(itemDto, null);
@@ -72,7 +72,7 @@ public class ItemControllerTest {
     void updateSuccess() {
         Long id = 1L;
         Long userId = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description");
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description", null);
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         when(itemClient.updateItem(any(ItemRequestDto.class), anyLong(), anyLong())).thenReturn(expectedResponse);
@@ -86,7 +86,7 @@ public class ItemControllerTest {
     @Test
     void updateMissingUserId() {
         Long id = 1L;
-        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description");
+        ItemRequestDto itemDto = new ItemRequestDto(1L, "Updated Item", true, "Updated Description", null);
 
         DataNotFoundException thrown = assertThrows(DataNotFoundException.class, () -> {
             itemController.update(itemDto, id, null);

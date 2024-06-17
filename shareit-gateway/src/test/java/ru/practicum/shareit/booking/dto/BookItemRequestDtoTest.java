@@ -45,7 +45,7 @@ public class BookItemRequestDtoTest {
 
         Set<ConstraintViolation<BookItemRequestDto>> violations = validator.validate(dto);
         assertFalse(violations.isEmpty());
-        assertEquals("должно содержать сегодняшнее число или дату, которая еще не наступила", violations.iterator().next().getMessage());
+        assertEquals("must be a date in the present or in the future", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -58,6 +58,6 @@ public class BookItemRequestDtoTest {
 
         Set<ConstraintViolation<BookItemRequestDto>> violations = validator.validate(dto);
         assertFalse(violations.isEmpty());
-        assertEquals("должно содержать дату, которая еще не наступила", violations.iterator().next().getMessage());
+        assertEquals("must be a future date", violations.iterator().next().getMessage());
     }
 }

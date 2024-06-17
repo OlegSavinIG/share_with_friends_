@@ -25,11 +25,11 @@ public class ItemRequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createItemRequest(ItemRequestDto itemRequestDto, Long userId) {
+    public ResponseEntity<Object> createItemRequest(ItemRequestDto itemRequestDto, long userId) {
         return post("", userId, itemRequestDto);
     }
 
-    public ResponseEntity<Object> findItemRequestsByUser(Long userId) {
+    public ResponseEntity<Object> findItemRequestsByUser(long userId) {
         return get("", userId);
     }
 
@@ -41,7 +41,7 @@ public class ItemRequestClient extends BaseClient {
         return get("/all", userId, parameters);
     }
 
-    public ResponseEntity<Object> findById(Long requestId, Long userId) {
+    public ResponseEntity<Object> findById(Long requestId, long userId) {
         return get("/" + requestId, userId);
     }
 }

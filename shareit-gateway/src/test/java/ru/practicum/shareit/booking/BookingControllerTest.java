@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;
@@ -100,7 +101,7 @@ public class BookingControllerTest {
         Integer from = 0;
         Integer size = 10;
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+        UnsupportedStatusException thrown = assertThrows(UnsupportedStatusException.class, () -> {
             bookingController.getBookings(userId, stateParam, from, size);
         });
 
@@ -131,7 +132,7 @@ public class BookingControllerTest {
         Integer from = 0;
         Integer size = 10;
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+        UnsupportedStatusException thrown = assertThrows(UnsupportedStatusException.class, () -> {
             bookingController.allBookingsByOwner(ownerId, stateParam, from, size);
         });
 

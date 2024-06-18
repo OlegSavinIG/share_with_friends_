@@ -4,12 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.annotation.Update;
 import ru.practicum.shareit.booking.model.BookingResponseWithItem;
 import ru.practicum.shareit.item.comment.CommentDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**

@@ -2,17 +2,10 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.annotation.Update;
-import ru.practicum.shareit.annotation.ValidFrom;
-import ru.practicum.shareit.annotation.ValidSize;
-import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.model.ItemDto;
 
-import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 
 @RestController

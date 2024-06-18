@@ -2,18 +2,10 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.annotation.ValidFrom;
-import ru.practicum.shareit.annotation.ValidSize;
 import ru.practicum.shareit.booking.model.BookingDto;
 import ru.practicum.shareit.booking.model.BookingResponse;
-import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.exception.UnsupportedStatusException;
-import ru.practicum.shareit.exception.ValidationException;
 
-import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -52,9 +44,9 @@ public class BookingController {
                                                                      @RequestParam(required = false) String state,
                                                                      @RequestParam(defaultValue = "0") Integer from,
                                                                      @RequestParam(defaultValue = "10") Integer size) {
-//        if (state == null || state.equalsIgnoreCase("all")) {
-//            return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
-//        }
+        if (state == null || state.equalsIgnoreCase("all")) {
+            return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
+        }
 //        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
 //                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
 //        if (!anyMatchStatus) {
@@ -68,9 +60,9 @@ public class BookingController {
                                                                     @RequestParam(required = false) String state,
                                                                     @RequestParam(defaultValue = "0") Integer from,
                                                                     @RequestParam(defaultValue = "10") Integer size) {
-//        if (state == null || state.equalsIgnoreCase("all")) {
-//            return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
-//        }
+        if (state == null || state.equalsIgnoreCase("all")) {
+            return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
+        }
 //        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
 //                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
 //        if (!anyMatchStatus) {

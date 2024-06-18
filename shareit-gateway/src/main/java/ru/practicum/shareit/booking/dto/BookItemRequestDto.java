@@ -19,8 +19,10 @@ public class BookItemRequestDto {
     @NotNull(groups = {Update.class})
     private Long id;
     private long itemId;
+    @NotNull
     @FutureOrPresent
     private LocalDateTime start;
+    @NotNull
     @Future
     private LocalDateTime end;
 }

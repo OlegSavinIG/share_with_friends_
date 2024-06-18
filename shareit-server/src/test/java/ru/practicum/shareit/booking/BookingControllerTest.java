@@ -86,14 +86,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status").value(bookingResponse.getStatus().toString()));
     }
 
-//    @Test
-//    void testApproveBookingInvalidApprovedParam() throws Exception {
-//        mockMvc.perform(patch("/bookings/{bookingId}", 1L)
-//                        .param("approved", "invalid")
-//                        .header("X-Sharer-User-Id", 2L))
-//                .andExpect(status().isConflict());
-//    }
-
     @Test
     void testFindById() throws Exception {
         given(bookingService.findById(anyLong(), anyLong())).willReturn(bookingResponse);
@@ -140,26 +132,4 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[0].item.id").value(bookingResponse.getItem().getId()))
                 .andExpect(jsonPath("$[0].status").value(bookingResponse.getStatus().toString()));
     }
-
-//    @Test
-//    void testAllBookingsByBookerInvalidState() throws Exception {
-//        mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "invalid")
-//                        .param("from", "0")
-//                        .param("size", "10"))
-//                .andExpect(status().isBadRequest());
-//    }
-
-
-//    @Test
-//    void testAllBookingsByOwnerInvalidState() throws Exception {
-//        mockMvc.perform(get("/bookings/owner")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param("state", "invalid")
-//                        .param("from", "0")
-//                        .param("size", "10"))
-//                .andExpect(status().isBadRequest());
-//    }
-
 }

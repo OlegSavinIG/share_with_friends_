@@ -27,9 +27,6 @@ public class BookingController {
     public ResponseEntity<BookingResponse> approveBooking(@PathVariable Long bookingId,
                                                           @RequestParam String approved,
                                                           @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
-//        if (!approved.equals("true") && !approved.equals("false")) {
-//            throw new ValidationException("Неправильно передан параметр approved");
-//        }
         return ResponseEntity.ok(bookingService.approveBooking(bookingId, approved, ownerId));
     }
 
@@ -47,11 +44,6 @@ public class BookingController {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByBooker(bookerId, from, size));
         }
-//        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
-//                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
-//        if (!anyMatchStatus) {
-//            throw new UnsupportedStatusException("Unsupported status: " + state);
-//        }
         return ResponseEntity.ok(bookingService.getBookingsByBooker(bookerId, state, from, size));
     }
 
@@ -63,11 +55,6 @@ public class BookingController {
         if (state == null || state.equalsIgnoreCase("all")) {
             return ResponseEntity.ok(bookingService.allBookingsByOwner(ownerId, from, size));
         }
-//        boolean anyMatchStatus = Arrays.stream(BookingStatus.values())
-//                .anyMatch(bookingStatus -> bookingStatus.name().equalsIgnoreCase(state));
-//        if (!anyMatchStatus) {
-//            throw new UnsupportedStatusException("Unknown state: " + state);
-//        }
         return ResponseEntity.ok(bookingService.getBookingsByOwner(ownerId, state, from, size));
     }
 

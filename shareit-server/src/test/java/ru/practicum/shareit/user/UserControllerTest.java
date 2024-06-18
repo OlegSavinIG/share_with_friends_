@@ -124,32 +124,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].email").value(userDto.getEmail()));
     }
 
-//    @Test
-//    void testCreateUserInvalidEmail() throws Exception {
-//        UserDto invalidUser = UserDto.builder()
-//                .id(1L)
-//                .name("Test User")
-//                .email("invalid-email")
-//                .build();
-//
-//        mockMvc.perform(post("/users")
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(invalidUser)))
-//                .andExpect(status().isBadRequest());
-//    }
-
-//    @Test
-//    void testCreateUserMissingName() throws Exception {
-//        UserDto invalidUser = UserDto.builder()
-//                .id(1L)
-//                .email("test@example.com")
-//                .build();
-//
-//        mockMvc.perform(post("/users")
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(invalidUser)))
-//                .andExpect(status().isBadRequest());
-//    }
 
     @Test
     void testUpdateUserInvalidEmail() throws Exception {

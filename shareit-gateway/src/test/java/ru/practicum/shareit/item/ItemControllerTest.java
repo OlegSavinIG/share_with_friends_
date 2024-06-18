@@ -144,7 +144,7 @@ public class ItemControllerTest {
     void createCommentSuccess() {
         Long itemId = 1L;
         Long userId = 1L;
-        CommentRequestDto commentDto = new CommentRequestDto(1l, "Nice item!");
+        CommentRequestDto commentDto = new CommentRequestDto(1L, "Nice item!");
         ResponseEntity<Object> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         when(itemClient.createComment(anyLong(), anyLong(), any(CommentRequestDto.class))).thenReturn(expectedResponse);
